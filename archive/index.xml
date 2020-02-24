@@ -1,0 +1,2328 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Archives on Hello Alili</title>
+    <link>https://alili.tech/archive/</link>
+    <description>Recent content in Archives on Hello Alili</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh</language>
+    <lastBuildDate>Sun, 29 Dec 2019 21:29:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://alili.tech/archive/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>2019 年终有感</title>
+      <link>https://alili.tech/archive/awarkaubgq7/</link>
+      <pubDate>Sun, 29 Dec 2019 21:29:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/awarkaubgq7/</guid>
+      <description>今年可谓是充实的一年,进了新公司.一切的都变了,职场非常顺利.也很感谢自己的同事这一年里对我的帮助与启发.
+相对2018,是一个飞跃性的成长.越想越觉得应该早点来到这样的公司,充分展示自己.
+在新公司里把之前所有关于前端自动化的设想全部在公司全面落地. 微前端架构也在公司的后台管理系统上得到了真正的应用. 并且在基于Taro多端同构的应用上取得了一定的成绩.
+我的团队 在公司做了几件漂亮事之后,我重新又开始带团队,这一次跟以往完全不一样. 大家磨合的很好,彻彻底底的感受到了合作的魅力. 最终大家的成绩都得到了公司的认可,都拿到了满意的绩效.
+接下来的三个月,我会推动可支持多端的组件库建设,一款真正可以支持 H5,微信小程序,RN的组件库. 大家对此都表示非常的积极,要是做成了,我觉得这是一个非常了不起的事情. 希望今年的第一季度可以有一个很好的结果.
+关于博客 今年可能更新博客不是特别频繁,最主要的原因还是忙(懒). 本来想好好介绍一下我们的自动化方案,还有一些多端同构方面的探索与沉淀的. 最终还是没有写出来.2020年的话,还是要把这些沉淀与思考输出出来最好.
+关于技术 今年的技术,都是对去年设想真正的落地,包括微前端,自动化,多端同构方面. 但是最近我一直问自己,如何做到1个人干十个人的活. 一直问一直问,就总会有很多想法冒出来,不管是低代码也好,D2C也好都是非常好的提效工具.
+近期团队开始对Taro的D2C开始探索,初步算了一下.编写UI代码的最大可以提升12倍. 用D2C的方式去构建多端应用的话,很多的样式问题可以机械化的解决,这样大家说不定都可以直接忽略样式在多端之间的差异. 并且基于设计稿,可以一分钟写一个页面.这对团队来说是一个质的飞跃. 这是一个非常好的方向.
+关于2020 该干的还是得继续干,有的同事还是在痴迷自动化方面得事情.
+我感觉就现在得团队来说,工程自动化再花很多心思去做的话,对于现在的收益是在递减的.
+因为现有的自动化架构已经完全满足现在的开发需要了.我想我们更多的是在其他地方下功夫.来做到团队效率的整体提升.
+2020年上半年,会跟设计部门合作一个对外网站,主要分享公司的技术与设计的沉淀.到时候就请大家拭目以待吧.</description>
+    </item>
+    
+    <item>
+      <title>持续集成 - 代码质量扫描</title>
+      <link>https://alili.tech/archive/t0uky1fwdy/</link>
+      <pubDate>Sun, 15 Dec 2019 23:15:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/t0uky1fwdy/</guid>
+      <description>为了方便管理公司的代码质量,让代码质量扫描跟持续集成结合到一起是重要的一步. 目前公司比较年轻,但是在短短的一年时间里,也有了接近300个前端项目.
+这么多的前端项目,我们如何保证代码质量就成了一个很重要的事情.
+代码项目太多,codereview是必要的.但是人肉codereview不能保证效率. 因为个人水平的差距,与公司规范的熟悉程度.不能保证所有项目的规范一致性. 还有一些潜在的bug也有可能会被漏掉.
+我们公司是基于Gitlab CI/CD,所以以下说明是基于Gitlab的方式.但是思路的运用是相通的,有需要的人可以借鉴思路.
+修改.gitlab-ci.yml 为了方便每一个项目接入,我们对配置做了很小的改动. 并且每一个项目的配置的修改都是一样的,就是为了方便无脑的复制粘贴.
+我们还做了一个cli工具,里面包含代码扫描的一切功能.安装在runner的机器上.
+image: node:11.10.0 stages: - codereview # 添加一个codereview的stage codereview: stage: codereview script: - cli codereview # cli工具触发codereview tags: - fe #runner的tag,根据自己的情况自行修改  cli 触发代码扫描做什么? 执行SonarQube扫描  关于SonarQube的安装,网上有很多教程请自行搜索.
+  在执行runner的机器上安装 sonar-scanner  npm i sonar-scanner -g   利用自研的cli工具,在项目根目录生成sonar 扫描的配置文件.  // 获取gitlab 注入ci的环境变量 const { CI_PROJECT_NAME, CI_PROJECT_ID, } = process.env; // 基于gitlab的项目id生成一个sonar的projectKey const projectBuffer = Buffer.from(&#39;sonar&#39; + CI_PROJECT_ID); const projectKey = projectBuffer.</description>
+    </item>
+    
+    <item>
+      <title>FERR TO SHOT - 马</title>
+      <link>https://alili.tech/archive/ja0kb23zw4o/</link>
+      <pubDate>Sat, 07 Dec 2019 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ja0kb23zw4o/</guid>
+      <description>摄于 2019年12月7日 乌鲁木齐</description>
+    </item>
+    
+    <item>
+      <title>持续集成 - 使用Gilab CI进行前端项目的持续集成</title>
+      <link>https://alili.tech/archive/tisoqlkd0qa/</link>
+      <pubDate>Fri, 20 Sep 2019 23:15:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/tisoqlkd0qa/</guid>
+      <description>市面上的持续集成平台有很多,今天介绍Gitlab的CI.
+从Gitlab 8.0开始,Gitlab CI 就集成在了Gitlab中.
+使用方法非常简单,只要我们在项目的根目录创建一个 .gitlab-ci.yml文件,添加一个Runner,就直接接入了Gitlab CI.
+接入方式非常的简单便捷.目前我们在前端脚手架中放一个.gitlab-ci.yml文件,后续每一个前端项目都可以按照标准直接接入Gitlab CI.
+GitLab Runner 所有的Gitlab任务都会放在Gitlab Runner中执行.
+GitLab Runner的安装环境,根据你的需求而定,一个gitlab 可以注册的Runner是没有限制的.
+普通的前端项目直接安装在Linux中就可以了,如果是小程序或者RN这种项目,目前我是直接找了一台mac mini来安装Runner.
+GitLab Runner安装 安装Runner 非常简单, 这里晒出Gitlab的官方安装教程,你可以根据你的系统环境自行下载.
+安装Gitlab Runner 官方文档
+注册Runner Runner安装好之后,想要关联到你的Gitlab,需要注册Runner.
+这里给大家介绍群组的runner注册方式,个人项目的runner方式注册基本一致
+注册Gitlab Runner 官方文档
+大致流程为:
+ 打开Gitlab网站,选择群组-&amp;gt; 设置-&amp;gt; CI/CD -&amp;gt; 展开Runner -&amp;gt; 你会看到注册Runner的Token与Url 安装好Runner的机器上,运行 sudo gitlab-runner register 输入 你Gitlab的 URL 输入 Token 输入 Runner 的名字 选择 Runner 的类型,没有特殊需求直接选shell 完成  配置Runner Runner的配置文件会以执行的用户身份不同而不同
+ 当GitLab Runner以root身份执行时 /etc/gitlab-runner/config.toml 当GitLab Runner以非root身份执行时 ~/.gitlab-runner/config.toml  Runner的全局配置 这里我只说关键的两点</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化进阶4 - 跨框架共享组件(微件化)</title>
+      <link>https://alili.tech/archive/vgnhe9tfqnc/</link>
+      <pubDate>Sat, 22 Jun 2019 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/vgnhe9tfqnc/</guid>
+      <description>在微前端中,我们可以根据自己的业务需求,让子模块使用不同框架技术栈.虽然到了这一步已经很美好了,那这就是微前端的终点吗?
+答案是否定的,微前端的边界还可以更进一步的拓宽.
+上一篇微前端的文章 https://alili.tech/archive/qh7x5i5szfh/ 给大家介绍了,如何在相同技术栈的子模块之间,相互调用React组件.
+那今天要说的就是,如何在不同技术栈之间的子模块相调用不同技术栈的组件.
+最终,我们只需要根据我们的需求调用相关功能的组件,我们不需要管他是 react ,vue或者是angular写的.
+你只管用,只知道他是一个组件就好了,不用关心太多~ 对于团队的组件积累,是有极大好处的.
+场景 一般情况下,一个公司的前端团队的技术栈都是统一的.但也有前端团队使用不统一技术栈的时候. 比如:
+ 时代的变迁,升级技术栈导致内部技术栈不统一 项目众多,因为需求不一致,其他的技术栈对于项目更加有力 &amp;hellip;其他管理原因  当我们已经使用微前端架构来构建我们的项目的时候,我们的子模块有可能因为我们项目的需求导致使用了其他的技术栈,
+如果我们使用了其他的技术栈,我们原来封装的组件就不能在新的项目中用了,所以我们需要要求组件可以跨框架共享使用.
+我们该怎么做? 这里有提到微件仓库模块,这是一个单独的项目.你可以理解是以前的旧项目,当你需要这个旧项目的某一个组件的时候,可以直接从这个项目里面拿.
+你也可以做成一个只提供组件的项目,毕竟在运行时一个子模块挂载到我们的项目中来是没有任何资源消耗的.
+我们只要知道我们需要的组件从哪里来就行了,然后根据组件还有之前定义好的路由找到这个组件,调用他,使用他就好了.
+基于Web component封装我们的组件 不同框架开发的组件,差异很大.想要串在一起使用,基本上是不可能的. 好在目前所有的框架都支持让组件以webcomponent的形式存在.
+react: https://react.docschina.org/docs/web-components.html
+vue : https://github.com/vuejs/vue-web-component-wrapper
+angular: https://www.angular.cn/guide/elements#transforming-components-to-custom-elements
+关于Web Components 的详细介绍 https://developer.mozilla.org/zh-CN/docs/Web/Web_Components
+加载性能 如果一个页面依赖了很多跨框架的组件,必然出现网络方面的性能问题.
+我们会在请求的中间加一层node服务,当页面请求多个跨框架的组件的时候,我们的node就会合并成单个文件,并且保存在硬盘上.
+所以说,当这个页面被请求过之后,页面零散的组件便会合并在一起,第二次其他用户请求就不会有这种合并文件的处理,直接返回静态资源给客户端.
+这种方式也不会对nodejs有太多额外的压力,
+因为现在的页面结构还是相对静态稳定的,没有太多的动态定制化的东西.这个方案足以应付大多数的应用场景.
+尾巴 经过不停的探索,微前端终于走到了微件化的这一步,感慨颇多~
+我们从一个窗口只能加载单个页面, 再到多个页面(SPA), 再到现在的多个项目(微前端), 然后再可以控制不同组件在多个项目之间随意组合(微件化).
+微前端的应用边界应该还可以拓展的更宽,还可以开发出更多惊喜的操作.
+相关系列文章 https://alili.tech/tags/microfrontend/</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化进阶3 - 跨模块共享组件</title>
+      <link>https://alili.tech/archive/qh7x5i5szfh/</link>
+      <pubDate>Sun, 12 May 2019 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/qh7x5i5szfh/</guid>
+      <description>前端微服务化之后,我们会面临一个问题: 模块之间重复代码不能复用的问题.
+如果使用npm管理我们的重复代码,我们会多出维护npm包的成本. 在子模块更新npm包版本,也是一件很麻烦的事情. 在js文件体积上也没有任何的优化.
+组件共享 今天我们就来聊一聊如何在多个模块中同时使用一个组件.
+思路 在base模块管理公共组件,将组件封装成动态组件,这样在打包的时候我们就可以将该组件切割成单独文件了. 当其他的子模块需要这个组件的时候,向Base模块动态获取.
+实践 动态组件的封装 为了让其他模块可以按需加载我们的公共组件,我们需要对已有的组件封装成动态组件.
+我这里使用的是 umi/dynamic,
+他是基于https://github.com/jamiebuilds/react-loadable 封装了一层. 有兴趣的小伙伴可以自行了解.
+import React from &#39;react&#39;; import dynamic from &#39;umi/dynamic&#39;; import PageLoading from &#39;@/components/PageLoading&#39; export const Demo = dynamic(import( `../Demo`), {loading: () =&amp;gt; &amp;lt;PageLoading /&amp;gt;}) export default Demo;  对外提供获取动态组件的方法 在加载Base模块的时候,我们可以在window下暴露一个调用该模块动态组件的方法
+window.getDynamicComponent = async function(name) { let component = null; component = await import(`@/components/dynamic/${name}`); return component[name]; };  子模块调用公共组件 因为base模块提供了一个获取公共组件的全局方法, 我们就可以在任何模块任何需要调用公共组件的地方去是使用它了.
+// 获取组件 let component = await window.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化进阶2 - 本地开发指南</title>
+      <link>https://alili.tech/archive/3xwbcv1w21i/</link>
+      <pubDate>Mon, 22 Apr 2019 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3xwbcv1w21i/</guid>
+      <description>使用single-spa构建我们的微服务化的前端应用之后,其实有一个问题会一直困扰着我们, 就是如何有效的开发?如何与我们平时开发的前端应用一样简单,容易上手. 今天就以umi子模块为例,希望给到大家一个思路
+今天我就介绍一种方法,希望对大家有帮助.
+模块加载器 是否还记得我之前的模块加载器, https://alili.tech/archive/1a60cede/
+我们只需要将原来模块的加载器,封装成npm包.
+然后在我们开发子模块项目的时候,运行我们的加载器 // umi src/app.js import bootstrap from &#39;@demo/demo-module-dev-loader&#39; //封装过后的npm包 import store from &#39;store&#39;; // 我们用于通讯的store文件 export async function render(oldRender) { if (process.env.NODE_ENV === &#39;development&#39;) { const main = oldRender(); const res = await window.fetch(&#39;./project.json&#39;); let currentProject = await res.json(); bootstrap({ main, store, prefix: currentProject.prefix }); } else { oldRender(); } }  module-dev-loader 我们的demo-module-dev-loader里一样会有一个 Bootstrap.js文件,我们对他进行一些小的修改.
+import * as singleSpa from &#39;single-spa&#39;; import { registerApp,registerLocal } from &#39;.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化进阶1 - 基于umi的子模块方案</title>
+      <link>https://alili.tech/archive/9xuojm75d2a/</link>
+      <pubDate>Sat, 13 Apr 2019 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9xuojm75d2a/</guid>
+      <description>距离第一篇聊前端微服务的文章已经时隔大半年,很多人对此感兴趣.
+今天我们就聊一聊,我们如何基于umi来打造一个更完善的前端微服务的子模块.
+如果你用的是react以外的前端技术栈, 我的很多处理做法也可以应用在其他技术栈上.
+希望对你也有所帮助.
+优秀的umi框架 在前端中后台项目上,前端微服务化的需求相对是比较旺盛一些的.
+说到中后台,很多企业都是基于antd的组件来构建自己的项目.
+自去年的see conf之后,蚂蚁的一款可插拔的企业级 react 应用框架 umi发布了.
+这款框架与antd息息相关,antd结合umi使用那是相当的自然与流畅.
+可以说,基于umi与antd构建的项目非常的漂亮.这么优秀的框架,如果让他适用于我们的前端微服务架构,岂不美哉?
+umi也有相关的类似微服务方案: https://github.com/umijs/umi-example-monorepo
+但是umi提供的方案,有很大的局限性. 如果可以接入single-spa的微服务方案,独立开发,独立部署等等的前端微服务化红利, 会让你的项目日后有更大的发展空间.
+基于umi插件机制做到前端微服务化 umi 提供了非常强大的插件机制,正是由于这一点,我们才可以让umi也可以接入到微服务架构中来
+umi插件介绍 umi插件的基本介绍:
+https://umijs.org/zh/plugin/
+umi插件开发 这里介绍了如何开发一个简单的umi插件:
+https://umijs.org/zh/plugin/develop.html
+接入single-spa的umi插件 export default (api, opts) =&amp;gt; { // 以下的所有代码都写在这里面哦 };  渲染入口处理方法 定义一个动态的元素,当我们的base app 需要加载子模块的时候,会渲染出子模块需要渲染元素.
+我们的子模块找到了自己模块需要渲染的节点的时候,就会渲染出来.
+const domElementGetterStr = ` function domElementGetter() { let el = document.getElementById(&#39;submodule-page&#39;) if (!el) { el = document.createElement(&#39;div&#39;) el.id = &#39;submodule-page&#39; } let timer = null timer = setInterval(() =&amp;gt; { if (document.</description>
+    </item>
+    
+    <item>
+      <title>记一次MongoDB迁移 - 备份与恢复</title>
+      <link>https://alili.tech/archive/7815p445rtf/</link>
+      <pubDate>Wed, 27 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7815p445rtf/</guid>
+      <description> 最近对自己的的爬虫数据库做了一次迁移,所以在这里记录一下mongodb的备份与恢复
+MongoDB数据备份 mongodump -h dbhost -d dbname -o dbdirectory   -h： MongDB所在服务器地址，例如：127.0.0.1，如果没有改的话一般是：127.0.0.1:27017
+ -d： 需要备份的数据库名字，例如：test
+ -o： 备份的数据存放位置，例如：/home/root/xxx，
+  MongoDB数据恢复 mongorestore -h &amp;lt;hostname&amp;gt;&amp;lt;:port&amp;gt; -d dbname &amp;lt;path&amp;gt;   &amp;ndash;host &amp;lt;:port&amp;gt;, -h &amp;lt;:port&amp;gt;： MongoDB所在服务器地址，默认为： localhost:27017
+ &amp;ndash;db , -d ： 需要备份的数据库名字，例如：test
+ &amp;ndash;drop： 先删除现有的数据,再恢复数据
+ ： 指定备份文件的目录
+ &amp;ndash;dir： 指定备份文件的目录,不能同时指定  和 &amp;ndash;dir 选项。
+  </description>
+    </item>
+    
+    <item>
+      <title>一个两年前.gitattributes文件导致的bug</title>
+      <link>https://alili.tech/archive/zift8zkisnf/</link>
+      <pubDate>Thu, 24 Jan 2019 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/zift8zkisnf/</guid>
+      <description>起因 一时兴起,我打开了我两年前写的一个前端项目开始代码审查. 这个项目我一个人写了两年,大概十几万行代码的样子.
+发现这个项目的git居然把所有的代码文件都识别成了二进制文件. 这个问题,之前困扰了我很久,却一直找不到原因.导致我的代码没有对比记录.
+ 再顽固的问题也有水落石出的一天
+ 说巧不巧,今天偏偏找到了问题的源头.
+.gitattributes 最后发现是因为.gitattributes文件有一行配置因为换行问题.导致所有text的文件都识别成了二进制文件.
+.gitattributes的作用 .gitattributes文件是一个简单的text文本文件，它的作用是重新定义指定文件的属性, 指定非文本文件的对比合并方式
+编写规则 pattern attr1 attr2 ...  示例 *.ttf binary *.woff binary *.eot binary *.otf binary * text=auto  上面这段代码表示,将一些字体文件指定为二进制文件,当提交代码的时候git不会diff这些文件的变动详情. 他只会告诉你,文件变动了,但是不会告诉你具体哪里变了.</description>
+    </item>
+    
+    <item>
+      <title>LintCode 最长公共前缀</title>
+      <link>https://alili.tech/archive/an7l200dx1w/</link>
+      <pubDate>Sat, 19 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/an7l200dx1w/</guid>
+      <description>编写一个函数来查找字符串数组中的最长公共前缀。
+如果不存在公共前缀，返回空字符串 &amp;ldquo;&amp;ldquo;。
+示例 1: 输入: [&amp;quot;flower&amp;quot;,&amp;quot;flow&amp;quot;,&amp;quot;flight&amp;quot;] 输出: &amp;quot;fl&amp;quot;  示例 2: 输入: [&amp;quot;dog&amp;quot;,&amp;quot;racecar&amp;quot;,&amp;quot;car&amp;quot;] 输出: &amp;quot;&amp;quot; 解释: 输入不存在公共前缀。  说明:
+所有输入只包含小写字母 a-z 。
+Javascript /** * @param {string[]} strs * @return {string} */ var longestCommonPrefix = function(strs) { if(strs.length === 0)return &amp;quot;&amp;quot; let current = &amp;quot;&amp;quot; let prefix = &amp;quot;&amp;quot; let index = 0; let isTrue = true; while (strs[0][index]) { //以第一个单词为基准 current = strs[0][index]; // 以第一个单词为基准 for(let i = 0; i &amp;lt; strs.</description>
+    </item>
+    
+    <item>
+      <title>LintCode 买卖股票的最佳时机 II</title>
+      <link>https://alili.tech/archive/n15zv1hxje/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/n15zv1hxje/</guid>
+      <description>给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。
+设计一个算法来计算你所能获取的最大利润。你可以尽可能地完成更多的交易（多次买卖一支股票）。
+注意：你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+示例 1: 输入: [7,1,5,3,6,4] 输出: 7 解释: 在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。 随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6-3 = 3 。  示例 2: 输入: [1,2,3,4,5] 输出: 4 解释: 在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。 注意你不能在第 1 天和第 2 天接连购买股票，之后再将它们卖出。 因为这样属于同时参与了多笔交易，你必须在再次购买前出售掉之前的股票。  示例 3: 输入: [7,6,4,3,1] 输出: 0 解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。  Javascript /** * @param {number[]} prices * @return {number} */ var maxProfit = function(prices) { let n = 0; prices.</description>
+    </item>
+    
+    <item>
+      <title>Canvas 处理跨域图片终极方案</title>
+      <link>https://alili.tech/archive/g6kghla5ugc/</link>
+      <pubDate>Thu, 10 Jan 2019 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/g6kghla5ugc/</guid>
+      <description>浏览器因为安全问题,是不允许Canvas使用 getImageDatatoDataURL 处理跨域获取的图片的.
+传统解决方法 1.服务器需要配置Access-Control-Allow-Origin 相信这一行代码,大家见过太多,我就赘述了
+header(&amp;quot;Access-Control-Allow-Origin: 你的域名&amp;quot;);  2.设置crossOrigin属性 var canvas = document.createElement(&#39;canvas&#39;); var context = canvas.getContext(&#39;2d&#39;); var img = new Image(); img.crossOrigin = &#39;anonymous&#39;; //就是这行代码 img.onload = function () { context.drawImage(this, 0, 0); context.getImageData(0, 0, this.width, this.height); }; img.src = &#39;https://avatars3.xxxx.com/u/496048&#39;;   到这里,你的跨域问题已经基本解决. 但是因为一些客观因素后端工程师拒绝帮你设置跨域头,那你该怎么办?
+ 终极解决方案
+大致思路是 使用ajax获取到图片,然后使用 FileReader转成base64;再使用canvas处理base64格式的图片就好了.
+获取图片的base64 function getBase64(imgUrl) { return new Promise(((resolve, reject) =&amp;gt; { window.URL = window.URL || window.webkitURL; // 声明一个XMLHttpRequest const xhr = new XMLHttpRequest(); // 获取图片 xhr.</description>
+    </item>
+    
+    <item>
+      <title>Git大小写不敏感导致的烦人问题</title>
+      <link>https://alili.tech/archive/rrc7ngyr5rp/</link>
+      <pubDate>Wed, 09 Jan 2019 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/rrc7ngyr5rp/</guid>
+      <description>因为同事把一个文件夹的小写改成了大写,导致我本地的提交不能直接push rebase 等一些列操作.恼的很~
+ error: The following untracked working tree files would be overwritten by checkout: xxx.js Please move or remove them before you can switch branches. Aborting  解决办法 设置为大小写敏感(问题解决后,一定要还原配置)
+git config core.ignorecase false  尽管设置大小写敏感之后,始终会影响其他分支的代码,所以不建议一直使用这个配置,当问题解决之后,还是要改回去.
+改回默认 git config core.ignorecase true # or git config --unset core.ignorecase  尾巴 平时编码的时候,还是千万不要直接重命名大小写,自己本地看起来没有什么问题.在别人问题上却是大问题.
+如果发生了类似问题的,应该在源头解决(谁机器上重命名的,谁改回去).如果不解决的,应该拖出去打~~</description>
+    </item>
+    
+    <item>
+      <title>Visual Studio Code 下的 jsconfig.json</title>
+      <link>https://alili.tech/archive/ltucv5fyj9/</link>
+      <pubDate>Tue, 08 Jan 2019 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ltucv5fyj9/</guid>
+      <description>今天聊聊 Visual Studio Code 的jsconfig.json配置小技巧.
+jsconfig.json 是什么? 如果你的项目中有一个 jsconfig.json文件的话,这个文件的配置可以对你的文件所在目录下的所有js代码做出个性化支持.
+ Tip: 如果你在项目中新加了这个文件,记得重启一下vscode哦~
+ 例子 exclude 属性 当vscode扫描项目代码的时候,如果遇到了node_module的话是会变得很慢的.
+如果想要编辑器的性能有一个提升的话,我们应该排除这个文件夹.
+{ &amp;quot;exclude&amp;quot;: [ &amp;quot;node_modules&amp;quot; ] }  include 属性 当然还有相对的include属性
+{ &amp;quot;include&amp;quot;: [ &amp;quot;src/**/*&amp;quot; ] }  webpack aliases 的支持 如果我们在我们的webpack里面配置的路径的别名,心细的小朋友就发现了. 我们的vscode不能根据别名路径导入的包跳转文件了.所以我们还需要jsconfig.json的支持.
+{ &amp;quot;compilerOptions&amp;quot;: { &amp;quot;baseUrl&amp;quot;: &amp;quot;.&amp;quot;, &amp;quot;paths&amp;quot;: { &amp;quot;@component&amp;quot;: [&amp;quot;./src/component&amp;quot;] } } }  jsconfig.json的配置是tsconfig.json的子集,
+以后有机会的话聊一聊tsconfig.json.
+今天就到这里~</description>
+    </item>
+    
+    <item>
+      <title>幕后英雄Abstract syntax tree抽象语法树</title>
+      <link>https://alili.tech/archive/9rfliipfkip/</link>
+      <pubDate>Thu, 03 Jan 2019 17:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9rfliipfkip/</guid>
+      <description>抽象语法树 AST 在计算机科学中，抽象语法树，或简称语法树，是源代码语法结构的一种抽象表示.
+这里介绍一个网站 https://astexplorer.net ,可以让你清晰的看到一段js,css以及其他语言被转换成语法树的样子.
+在我们的浏览器中,也会对我们的js代码解析成抽象语法书然后再进一步的分析以及下一步的操作.
+语法树就前端而言,被利用在各种地方,代码语法的检查，代码风格的检查，代码的格式化，代码的高亮，代码错误提示，代码自动补全,比如:
+ eslint JSHint babel webpack rollup UglifyJS2  等等等等&amp;hellip; 根本数不过来.
+举个例子 一段代码被解析成语法树后的样子 目前业界对抽象语法树是有规范的, 感兴趣的朋友可以查看这个网址: SpiderMonkey
+let str =&#39;我是字符串&#39;;  to AST
+{ &amp;quot;type&amp;quot;: &amp;quot;Program&amp;quot;, &amp;quot;start&amp;quot;: 0, &amp;quot;end&amp;quot;: 17, &amp;quot;body&amp;quot;: [ { &amp;quot;type&amp;quot;: &amp;quot;VariableDeclaration&amp;quot;, &amp;quot;start&amp;quot;: 0, &amp;quot;end&amp;quot;: 17, &amp;quot;declarations&amp;quot;: [ { &amp;quot;type&amp;quot;: &amp;quot;VariableDeclarator&amp;quot;, &amp;quot;start&amp;quot;: 4, &amp;quot;end&amp;quot;: 16, &amp;quot;id&amp;quot;: { &amp;quot;type&amp;quot;: &amp;quot;Identifier&amp;quot;, &amp;quot;start&amp;quot;: 4, &amp;quot;end&amp;quot;: 7, &amp;quot;name&amp;quot;: &amp;quot;str&amp;quot; }, &amp;quot;init&amp;quot;: { &amp;quot;type&amp;quot;: &amp;quot;Literal&amp;quot;, &amp;quot;start&amp;quot;: 9, &amp;quot;end&amp;quot;: 16, &amp;quot;value&amp;quot;: &amp;quot;我是字符串&amp;quot;, &amp;quot;raw&amp;quot;: &amp;quot;&#39;我是字符串&#39;&amp;quot; } } ], &amp;quot;kind&amp;quot;: &amp;quot;let&amp;quot; } ], &amp;quot;sourceType&amp;quot;: &amp;quot;module&amp;quot; }  Nodejs解析抽象语法树的工具 常用js解析工具  esprima traceur acorn shift  使用esprima举个例子 # node环境 &amp;gt; var esprima = require(&#39;esprima&#39;); &amp;gt; var program = &#39;const answer = 42&#39;; &amp;gt; esprima.</description>
+    </item>
+    
+    <item>
+      <title>2018 年终有感</title>
+      <link>https://alili.tech/archive/53ogpu5lzuh/</link>
+      <pubDate>Sat, 29 Dec 2018 21:29:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/53ogpu5lzuh/</guid>
+      <description>今天是今年的最后一个工作日,现在我在高铁上.已经习惯在高铁上用电脑折腾点什么. 回想起来,不知道在高铁上发过多少次版本,fix掉了多少个bug.啊哈哈~
+回看今年的2018,对于我来说是传奇的,是曲折的,甚至是有点丧的.幸运的是个人成长并没有客观原因而耽误.
+我的团队 回想到今年7月份,亲手组建的前端团队因为大环境的原因而解散,确实是很痛心的. 如果按照正常来发展,我想应该可以打造成我心目中的Dream Team了吧.至少各个对技术是那么的有热情.
+成长要与时间赛跑 不过一切都没有关系,今年也不过刚满26,以后有的是机会.我经常这样安慰我自己.恐怕再过两年,这就不是自我安慰的理由了. 唯一要做的就是个人成长必须要与时间赛跑.
+今年去参加ng china的时候,让我非常有印象的一场演讲是雪狼的. 其中有一段大意是根据我们现在信息爆炸的年代,我们的成长应该古人早十年:
+二十而立
+三十不惑
+四十知天命
+五十耳顺
+六十从心所欲
+对此,我是十份赞同的.
+焦虑的一年 2018年对于我来说,是焦虑的一年.因为自身的焦虑,促使自己每天都在不断学习与进步~ 当然今年也错过了很多不错的机会.现在想起来,还是自己太年轻了,没有见过大人物,看到偶像立马就怂了. 不过还是随时整装待发,随时面对新挑战.
+关于博客 今年博客可以说是大升级了,界面看起来差不多,但是内部基本上重写了一遍. 还专门做了SEO,甚至还跑到 segmentfault 去打了一个星期的广告,哈哈哈~ 虽然宣传效果没有达到预期~
+以前没有专门的做统计,自10月上线统计以来,看了一下网站的总访问量已经到达了10W+. 我不知道其他的博客主的网站数据是怎么样的,但是按照现在趋势. 访问量还是在缓慢的增加.每天看到那些统计数据,还是非常有意思的.
+从之前每周强制写一篇,到现在的每周强制自己写三篇.写一些自己正在做的,看到的,有意思的技术总结.有时候是一些很小的技术点,有一些也是我研究了很久,有一定系统性的东西.写博客对我来说是一种非常有效率的学习方式.以后应该还会坚持.不过也说不上坚持吧,渐渐的已经成为了一种爱好与习惯. 希望这种习惯,可以让自己的技能可以有发挥的地方.有一个组织与自己互利互惠,相互成长,得到各自想要的东西.
+关于家庭 关于家庭,今年1月份我儿子小可乐出生了,直到小可乐出生很久,我都没能让自己非常喜欢小孩. 不知道是因为自己是独生子或者从来没有跟自己年龄小的人相处的原因. 现在看,我身边的朋友大多都比我大个五六七八岁的. 但是现在,相处的越久发现这种与儿子的羁绊越来越深.希望以后可以跟他成为好朋友,甚至是好兄弟,好导师.
+至少我们现在看到的世界,比我们父辈的那一代要大很多. 我们要学习父辈的智慧,重新看待与审视这个世界. 智慧这个东西,很有意思~ 不管放在哪个时代都是可以直接复用的.
+关于技术 今年我有听到一些话,让我深深的陷入思考.我一同事跟我说: &amp;ldquo;我对技术没有你那么高的热情,我只是为了谋生&amp;rdquo;. 我很排斥这种说法,但是又不得不承认很多人是这样. 这是不是很多时候面试,别人问你是不是计算机专业出身的一样.
+我问自己,我学习这么多的知识是谋生吗? 最终我想了想,得到了答案: 学习这些技术是一个让我理解这个世界的途径. 我想我能有一个这样的理解,是因为我比较幸运吧~ 虽然生活压力还是有的,但也没有那么大~是吧? (突然脑子想到那个段子~)
+我一直觉得我有一个问题,我眼中总是只能看到比我优秀的人,看着他们如此优秀,让自己无比焦虑.
+有时候我对自己说,我是不是偶尔也向后看看? 可以自己释怀很多~ 但是很多时候又觉得自己办不到? 这算不算习惯性见贤思齐的一种表现~ 我觉得这是病,时间久了多多少少还是会有一些问题的.
+关于2019 2019我觉得没有什么可计划的,要是真有计划那也是把2018年一直坚持的事情继续做下去.</description>
+    </item>
+    
+    <item>
+      <title>聊聊HTTP的X-Forwarded-For 和 X-Real-IP</title>
+      <link>https://alili.tech/archive/izbidk3gu3s/</link>
+      <pubDate>Sat, 29 Dec 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/izbidk3gu3s/</guid>
+      <description>最近在看网易云音乐API nodejs这个项目的文档的时候.
+发现调用须知里,有一段是这样的说的:
+ 由于网易限制,此项目在国外服务器上使用会受到限制,如需解决 , 可使用大陆服务器或者使用代理 , 感谢 @hiyangguo提出的解决方法: 在 &amp;lsquo;util.js&amp;rsquo; 的 &amp;lsquo;headers&amp;rsquo; 处增加 X-Real-IP&amp;rsquo;:&amp;lsquo;211.161.244.70&amp;rsquo; // 任意国内 IP 即可解决
+ 网易云音乐的接口调用对国外加了限制,想要跳过这样的限制的话,就必须在headers里修改X-Real-IP 就可以解决.
+那X-Real-IP是什么?是干什么用的?
+X-Real-IP X-Real-IP，这是一个自定义头部字段。X-Real-IP 通常被 HTTP 代理用来表示与它产生 TCP 连接的设备 IP，这个设备可能是其他代理，也可能是真正的请求端。需要注意的是，X-Real-IP 目前并不属于任何标准，
+跟他非常相关的,还有一个X-Forwarded-For的自定义头部字段.
+X-Forwarded-For X-Forwarded-For 是一个 HTTP 扩展头部。HTTP/1.1（RFC 2616）协议并没有对它的定义，它最开始是由 Squid 这个缓存代理软件引入，用来表示 HTTP 请求端真实 IP。如今它已经成为事实上的标准，被各大 HTTP 代理、负载均衡等转发服务广泛使用，并被写入 RFC 7239（Forwarded HTTP Extension）标准之中。
+格式:
+X-Forwarded-For: client, proxy1, proxy2  如果一个 HTTP 请求到达服务器之前，经过了三个代理 Proxy1、Proxy2、Proxy3，IP 分别为 IP1、IP2、IP3，用户真实 IP 为 IP0，那么按照 XFF 标准，服务端最终会收到以下信息：
+X-Forwarded-For: IP0, IP1, IP2  X-Forwarded-For 会记录用户ip与每次转发用的代理服务器ip.</description>
+    </item>
+    
+    <item>
+      <title>Angular路径别名配置</title>
+      <link>https://alili.tech/archive/3u54dxnerfn/</link>
+      <pubDate>Thu, 27 Dec 2018 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3u54dxnerfn/</guid>
+      <description>angular cli 内置了 webpack,所以也是可以配置路径别名的. 而且配置的方式几乎是一样的.
+配置路径别名 找到你的项目根目录的 tsconfig.json 文件.
+注意: 如果你的配置不生效,需要查看你的baseUrl是否配置正确.
+{ &amp;quot;compilerOptions&amp;quot;: { &amp;quot;baseUrl&amp;quot;: &amp;quot;./src/&amp;quot;, &amp;quot;paths&amp;quot;: { &amp;quot;@app/*&amp;quot;: [&amp;quot;app/*&amp;quot;], &amp;quot;@services/*&amp;quot;: [&amp;quot;app/services/*&amp;quot;] } } }  配置之前 import { Api } from &#39;../../../../../services/api.service&#39;; import { xxx } from &#39;../../../../../services/api.xxx&#39;;  配置之后 import { Api } from &#39;@services/api.service&#39;; import { xxx } from &#39;@services/api.xxx&#39;;  一些开发中的小技巧,希望可以帮到你.</description>
+    </item>
+    
+    <item>
+      <title>Typescript的福音:Json To Interface</title>
+      <link>https://alili.tech/archive/ijfdh4ry66c/</link>
+      <pubDate>Tue, 25 Dec 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ijfdh4ry66c/</guid>
+      <description> 在我们使用ts的时候,我们需要写大量的 Interface.
+但是我们一条json数据的字段实在是太多了,一个一个写的话不仅会花费大量的时间.
+在团队内部推广Typescript,因为使用问题导致推广层层阻碍,最后放弃使用屡见不鲜.
+今天推荐的这个插件,希望可以帮到你.
+JSON to TS 插件 安装 ext install json-to-ts  复制到剪贴板后 运行快捷键 (Ctrl + Alt + V) 鼠标选中后 运行快捷键 (Ctrl + Alt + S) 已知问题 linux 已知问题 Command failed: xclip -selection clipboard -o  解决方法 sudo apt-get install xclip  </description>
+    </item>
+    
+    <item>
+      <title>Centos7 如何使用yum升级git到最新版本</title>
+      <link>https://alili.tech/archive/cue4m2rioxl/</link>
+      <pubDate>Mon, 24 Dec 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cue4m2rioxl/</guid>
+      <description> yum upgrade 并不能升级git到最新版本 在centos7 默认的git版本是1.8.x
+查看本机git版本 git --version git version 1.8.3.1  如果你想使用yum升级到2.0+的版本
+直接yum升级并不会升级到最新版本 yum -y upgrade git git version 1.8.3.1  但是我又不想下载源码包,在本机编译然后输出环境变量那种方式. 还是太麻烦了.
+yum升级git版本到2.0+ Git第三方仓库安装（IUS） # 安装使用里面说的自动化安装脚本 curl https://setup.ius.io | sh yum search git # 删除本机git,安装git2u yum remove -y git | yum -y install git2u # 查看当前版本 git --version # 成功升级 &amp;gt; git version 2.16.4  </description>
+    </item>
+    
+    <item>
+      <title>推荐一个Angular Electron 开箱即用的项目工程模板</title>
+      <link>https://alili.tech/archive/cr8ze8vvvbw/</link>
+      <pubDate>Thu, 20 Dec 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cr8ze8vvvbw/</guid>
+      <description>在angular官网是有提供官方的 electron 的angular版本的模板. 但是版本是2.0的实在是太旧了.估计也不会再有人维护了吧. 但是至今还挂载官网上. 让很多新手,至少让我刚开始的时候误以为没有一个比较新的好用的electron的模板,可以快速的创建项目.
+Angular-electron 这里推荐一个完成度非常高的模板,开箱即用
+https://github.com/maximegris/angular-electron</description>
+    </item>
+    
+    <item>
+      <title>Angular7 &#43; Electron主进程与渲染进程通讯问题</title>
+      <link>https://alili.tech/archive/pw9ygknqvso/</link>
+      <pubDate>Wed, 19 Dec 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/pw9ygknqvso/</guid>
+      <description>Electron 中的进程分类 在 Electron 中，存在两种进程：主进程和渲染进程。
+渲染进程你可以理解为view层,也就是我们非常熟悉的显示页面的进程. 在这里你可以调用nodejs接口的能力,也可以做我们已经非常熟悉的浏览器操作. 但是你想要调用主进程才能做的一些操作的时候,就需要一个通讯机制,告诉主进程你要干嘛干嘛.
+IPC通讯 渲染层向主进程发送通知 //index.html,渲染进程发送通知 onst electron = require(&#39;electron&#39;) const ipcRenderer = electron.ipcRenderer ipcRenderer.send(&#39;main-process-messages&#39;,&#39;hellow&#39;)  // main.js 主进程接收通知 const { ipcMain } = require(&#39;electron&#39;); ipcMain.on(&#39;main-process-messages&#39;, function(event, message) { console.log(message) });  主进程向渲染进程发送通知 // main.js mainWindow.webContents.send(&#39;main-process-messages&#39;, &#39;main-process-messages show&#39;)  //index.html,渲染进程中接收消息 const electron = require(&#39;electron&#39;) const ipcRenderer = electron.ipcRenderer ipcRenderer.on(&#39;main-process-messages&#39;, function(event, message){ alert(message) })  在Angular工程中如何使用 当你在angular工程中直接require(&#39;electron&#39;)是会直接报错的.
+ERROR in ./node_modules/electron/index.js Module not found: Error: Can&#39;t resolve &#39;fs&#39; in &#39;###/node_modules/electron&#39; ERROR in .</description>
+    </item>
+    
+    <item>
+      <title>从零搭建 Angular7 &#43; Electron 桌面应用</title>
+      <link>https://alili.tech/archive/i15aswl1v4s/</link>
+      <pubDate>Tue, 18 Dec 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/i15aswl1v4s/</guid>
+      <description>Electron 是什么？ Electron 是一个可以用 JavaScript、HTML 和 CSS 构建桌面应用程序的库。这些应用程序能打包到 Mac、Windows 和 Linux 系统上运行，也能上架到 Mac 和 Windows 的 App Store。 意思就是说,你只要拥有前端开发的能力,也可以轻松开发跨平台的桌面应用.
+Electron的『主进程』和『渲染进程』 Electron 有两种进程：『主进程』和『渲染进程』。部分模块只能在两者之一上运行，而有些则无限制。主进程更多地充当幕后角色，而渲染进程则是应用程序的各个窗口。
+主进程 主进程，通常是一个命名为 main.js 的文件，该文件是每个 Electron 应用的入口。它控制了应用的生命周期（从打开到关闭）。它既能调用原生元素，也能创建新的（多个）渲染进程。另外，Node API 是内置其中的。
+渲染进程 渲染进程是应用的一个浏览器窗口。与主进程不同，它能存在多个（注：一个 Electron 应用只能存在一个主进程）并且相互独立（它也能是隐藏的）。
+主窗口通常被命名为 index.html。它们就像典型的 HTML 文件，但 Electron 赋予了它们完整的 Node API。因此，这也是它与浏览器的区别。
+进程之间的通讯 (IPC) 想要再网页里调用主进程的功能,比如关闭窗口,最小化全屏等主线程才能控制的功能. Electron提供了通讯的机制,这就是IPC.后续会慢慢介绍IPC的使用.
+Angular7 + Electron 介绍完Electron的一些基础概念之后, 这里教大家徒手搭建一个基于ng7的桌面应用工程.
+1. 安装最新angular-cli npm i -g @angular/cli  2. 生成一个angular工程 ng new electro-angular7  3. 安装最新版electron cd electro-angular7 npm install --save-dev electron@latest  4.</description>
+    </item>
+    
+    <item>
+      <title>记2018年最后一次前端分享(提供Slides)</title>
+      <link>https://alili.tech/archive/unui11c01ml/</link>
+      <pubDate>Thu, 13 Dec 2018 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/unui11c01ml/</guid>
+      <description>   $(function(){ let str = &#34;&#34; for(var i = 2;i=10){ count = &#34;0&#34;+ i; } str = str + &#39;&#39; } $(&#39;.imageBox&#39;).html(str) var images = document.querySelectorAll(&#34;.lazyload&#34;); lazyload(images); })   </description>
+    </item>
+    
+    <item>
+      <title>使用husky提升Code Review的效率</title>
+      <link>https://alili.tech/archive/i9t0x2tvleo/</link>
+      <pubDate>Tue, 04 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/i9t0x2tvleo/</guid>
+      <description>在code review的时候,代码风格是其中审查的指标之一.在审查代码风格其实是有一定工作量的.
+为了减少代码审查的工作量,我们何不把代码风格在提交代码之前就规范掉?
+这样我们就可以在代码审查中节约出很多时间,来做更多的其他更有意义的事情.
+git hooks 在git中提供了hook,就是在触发代码提交,push等一系列操作的时候,提供了触发其他程序的钩子.
+如何操作,本文不多赘述.
+有兴趣的同学可以查看文档: https://git-scm.com/docs/githooks
+husky 如果看过githooks的文档,是不是觉得会有一点繁琐?
+这里介绍一个工具 husky 可以解决你的问题.
+安装 npm install husky --save-dev  然后修改 package.json，增加配置：
+{ &amp;quot;husky&amp;quot;: { &amp;quot;hooks&amp;quot;: { &amp;quot;pre-commit&amp;quot;: &amp;quot;eslint .&amp;quot; } }, }  如果你只是局部安装了 eslint,请使用以下配置
+{ &amp;quot;lint-staged&amp;quot;: { &amp;quot;src/**/*.js&amp;quot;: [ &amp;quot;node_modules/.bin/eslint&amp;quot; ] }, }  最后尝试 Git 提交，你就会很快收到反馈：
+git commit -m &amp;quot;this is a commit&amp;quot;  这样,我们就可以在代码提交之前验证一下我们的代码lint是否通过.
+对于一些以前从来没有用过eslint的项目来说.突然引入这种工具.
+你可能面临的是把所有文件都按照eslint都格式化一遍.那不是疯了吗?
+lint-staged 这里再安利一个工具,可以实现 eslint只检查本次提交的文件. 这样我们就可以做到渐进式的改善我们的代码质量.
+安装 npm install lint-staged --save-dev  修改 package.</description>
+    </item>
+    
+    <item>
+      <title>让团队保持Code Review习惯的三大法宝</title>
+      <link>https://alili.tech/archive/1479pecm0mbo/</link>
+      <pubDate>Fri, 30 Nov 2018 14:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/1479pecm0mbo/</guid>
+      <description>之前跟大家聊过代码审查,想要在团队中保持团队代码审查习惯,是相当困难的. 我们必须要有合理的流程,工具与制度的支持,才能基本保证我们代码审查效率与质量.
+流程支持:Gitflow 之前有介绍Gitflow的工作流.
+大致如下:
+ 开发者在本地仓库中新建一个专门的分支开发功能。 开发者push分支修改到公开的Git仓库中。 开发者通过Git发起一个Merge Request。 团队的其它成员代码审查，讨论并修改。 项目维护者合并功能到官方仓库中并关闭Merge Request。  工具支持 强制使用eslint 强制使用eslint,在代码未提交之前,是用husky等工具做强制eslint. 保证提交之后的代码,必须先过一遍eslint.
+规范提交代码的类型 我们自己内部开发了一款简单的命令行工具,可以在我们提交代码的时候,定义本次提交的类型.
+方便我们后续在代码审查的时候,更加容易的理解修改的内容.
+类型如下  bug修复 新特性 样式修复 代码重构 测试代码 代码回滚 bug修复 文档更新 临时提交  命令行使用方式 ? What do you want to do? 代码提交 ? 请选择Git提交类型？ (Use arrow keys) ❯ * fixed : bug修复 * feature : 新特性 * style : 样式修复 * refactor : 代码重构 * test : 测试代码 * revert : 代码回滚 * doc : 文档更新 (Move up and down to reveal more choices)  Code Climate Code Climate是一款代码测试工具,它可以帮助你进行代码冗余检测、质量评估，同时支持多种语言，如PHP, Ruby, JavaScript, CSS, Golang, Python 等。</description>
+    </item>
+    
+    <item>
+      <title>cheeriojs加载html时中文会默认解析成unicode的问题</title>
+      <link>https://alili.tech/archive/lbpnt17e1sc/</link>
+      <pubDate>Thu, 29 Nov 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/lbpnt17e1sc/</guid>
+      <description> cheeriojs 解析中文为unicode问题 在使用cheeriojs的时候我发现,每当使用html方法,中文会默认解析成 unicode.
+使用方式如下:
+var cheerio = require(&#39;cheerio&#39;); var $ = cheerio.load(&#39;&amp;lt;title&amp;gt;我是中文,我将会被解析成unicode&amp;lt;/title&amp;gt;&#39;); console.log($(&#39;title&#39;).html());  当使用text方法的时候,并不会出现以上问题
+var cheerio = require(&#39;cheerio&#39;); var $ = cheerio.load(&#39;&amp;lt;title&amp;gt;我是中文,我将会被解析成unicode&amp;lt;/title&amp;gt;&#39;); $(&#39;title&#39;).text()  解决 默认配置 当我们load html内容的时候,其实cheerio是有默认配置的. html解析是使用的htmlparser2这个库,所以htmlparser2的配置在cheerio也是适用的.
+var cheerio = require(&#39;cheerio&#39;); var $ = cheerio.load(&#39;&amp;lt;title&amp;gt;我是中文,我将会被解析成unicode&amp;lt;/title&amp;gt;&#39;,{ withDomLvl1: true, normalizeWhitespace: false, xmlMode: false, decodeEntities: true });  修改默认配置 我们只需要将decodeEntities修改成 false,就可以解决我们的问题.
+{ decodeEntities: false }  像这样
+var cheerio = require(&#39;cheerio&#39;); var $ = cheerio.load(&#39;&amp;lt;title&amp;gt;我是中文,我将不会被解析成unicode&amp;lt;/title&amp;gt;&#39;,{ decodeEntities: false });  </description>
+    </item>
+    
+    <item>
+      <title>从前端角度来看声明式编程与命令式编程</title>
+      <link>https://alili.tech/archive/sdwn0mwjjj8/</link>
+      <pubDate>Mon, 26 Nov 2018 11:46:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/sdwn0mwjjj8/</guid>
+      <description>引入概念  声明式编程：告诉“机器”你想要的是什么(what)，让机器想出如何去做(how)。 命令式编程：命令“机器”如何去做事情(how)，这样不管你想要的是什么(what)，它都会按照你的命令实现。  怎么去解释以上两句话呢?
+我们带着这两个概念,用我们最熟悉的技术来解释两种编程范式
+声明式编程 （Declarative Programming） 告诉“机器”你想要的是什么(what)，让机器想出如何去做(how)。
+...more code &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;div id=&amp;quot;box&amp;quot;&amp;gt;声明式编程&amp;lt;/div&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt;  #box { width: 100px; height: 100px; color: #fff; background: #000; }  命令式编程 (Imperative Programming） 命令“机器”如何去做事情(how)，这样不管你想要的是什么(what)，它都会按照你的命令实现。
+var oDIv = document.createElement(&amp;quot;div&amp;quot;); var text = document.createTextNode(&amp;quot;命令式编程&amp;quot;); oDIv.appendChild(text); oDIv.id = &amp;quot;box&amp;quot;; oDIv.style.width = 100 + &amp;quot;px&amp;quot;; oDIv.style.height = 100 + &amp;quot;px&amp;quot;; oDIv.style.color = &amp;quot;#FFF&amp;quot;; oDIv.style.background = &amp;quot;#000&amp;quot;; document.body.appendChild(oDIv);  总结 以上两个例子,得到的结果是一模一样的.
+在我看来,声明式的背后是代码实现的高度抽象,声明式会让工作得到简化.</description>
+    </item>
+    
+    <item>
+      <title>Angular模板的安全导航( ?. )</title>
+      <link>https://alili.tech/archive/f16eaj0p4la/</link>
+      <pubDate>Sun, 25 Nov 2018 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/f16eaj0p4la/</guid>
+      <description>这是非常实用,也是在Angular开发中经常要使用的操作符. 而在react于vue中原生并不自带这样的特性.
+安全导航操作符 ( ?. ) 在我们日常开发中,在访问属性路径的时候.
+如果因为一些客观原因导致了路径中出现了 null,undefined,再往下取值,整个程序就会直接报错.导致程序不能往下运行.
+举个例子
+var obj ={ a:1, b:{ // 有时候,有可能这个属性不存在 c:2, d:3 } } obj.a //正常取值 obj.b //如果这个属性有时候不存在,这样取值的话,也只是取到一个 undefined,并不会报错 obj.b.c //当b属性不存在的时候,在undefined下取值,就绝对会造成程序崩溃  安全导航就是要解决以上都问题,我们只要在不确定的属性前的 .改成 ?.就可以不需要报错了,当没有取到值的时候,会默认为空.
+{{ obj?.b?.c }}  在写模板的时候是不是很方便呢? 简直不能太棒了好伐~
+妈妈再也不用担心后台给的数据很奇怪导致我前端报错了~~~~~</description>
+    </item>
+    
+    <item>
+      <title>使用Travis CI自动化部署你的Hugo,Hexo博客</title>
+      <link>https://alili.tech/archive/oj8dtatmwzg/</link>
+      <pubDate>Tue, 20 Nov 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/oj8dtatmwzg/</guid>
+      <description>Travis CI是什么? Travis CI是在线托管的CI服务，用Travis来进行持续集成，不需要自己搭服务器。最重要的是，它对开源项目是免费的。 如果公司是用的是 gitlab,也有提供相应的持续集成服务.这里就过多赘述.
+Travis CI 配置文件 Travis 要求项目的根目录下面，必须有一个.travis.yml文件。
+当你的仓库有提交的时候,travis会自动执行你下面配置的行为.
+Travis CI 的钩子与生命周期 Travis的钩子 Travis 有不同的阶段,他提供了7个钩子。
+ before_install：install 阶段之前执行 before_script：script 阶段之前执行 after_failure：script 阶段失败时执行 after_success：script 阶段成功时执行 before_deploy：deploy 步骤之前执行 after_deploy：deploy 步骤之后执行 after_script：script 阶段之后执行  生命周期  before_install install before_script script aftersuccess or afterfailure [OPTIONAL] before_deploy [OPTIONAL] deploy [OPTIONAL] after_deploy after_script  .travis.yml 下面是我的博客部署配置,也是我项目.travis.yml文件的内容.
+hugo 这是我的hugo部署配置,仅供参考
+language: node_js node_js: 10.13.0 install: - wget https://github.com/gohugoio/hugo/releases/download/v0.51/hugo_0.51_Linux-64bit.deb - sudo dpkg -i hugo*.deb - hugo version - rm -rf public - npm install script: - hugo --buildFuture - gulp - echo &#39;Build done!</description>
+    </item>
+    
+    <item>
+      <title>让你的Hugo博客支持echarts图表</title>
+      <link>https://alili.tech/archive/r5ibcpo557h/</link>
+      <pubDate>Mon, 19 Nov 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/r5ibcpo557h/</guid>
+      <description>在之前hexo构建的博客里,有使用到图表,但是现在迁移到hugo之后,就没有相关的插件支持了.
+所以自己动手丰衣足食.
+在hugo中有支持一种特性叫做 Shortcodes.简单的来说就是一个可以传参的小模板.
+创建Shortcodes 创建 ./layouts/Shortcodes/echarts.html文件
+&amp;lt;div id=&amp;quot;echarts{{ .Get `height` }}&amp;quot; style=&amp;quot;width: 100%;height: {{.Get `height`}}px;margin: 0 auto&amp;quot;&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;script src=&amp;quot;https://cdn.bootcss.com/echarts/3.8.0/echarts.common.min.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script type=&amp;quot;text/javascript&amp;quot;&amp;gt; // 基于准备好的dom，初始化echarts实例 var myChart = echarts.init(document.getElementById(&#39;echarts{{ .Get `height` }}&#39;)); // 指定图表的配置项和数据 var option = JSON.parse({{ .Inner }}) // 使用刚指定的配置项和数据显示图表。 myChart.setOption(option); &amp;lt;/script&amp;gt;  使用 在 Shortcodes 插入echarts的配置数据,这样你就可以再页面中看到一个完整的图表了
+Hello Alili | 前端大爆炸! - WEB BANG! BANG!! BANG!!! 前端大爆炸,一个前端技术博客.每天碰到那么多问题,终归还是需要一个记录的地方. 本文资源来源互联网，仅供学习研究使用，版权归该资源的合法拥有者所有， Hello Alili, 前端大爆炸, WEB BANG BANG BANG, web前端博客, 前端模块化, 前端工程化, 前端数据监控, 性能优化, 网页制作, 前端, js, html5, css, 踩坑小报告, 微前端, 树莓派, 前端开发, 区块链, 网络, Mongodb, Vue.</description>
+    </item>
+    
+    <item>
+      <title>Hugo平台博文指定时间之后不显示?</title>
+      <link>https://alili.tech/archive/yqufemb0c1m/</link>
+      <pubDate>Sun, 18 Nov 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/yqufemb0c1m/</guid>
+      <description> 自从博客切换到Hugo之后,是遇到了一些坑.
+明明正确添加到文章,页面时间调整到今天,或者是今天之后缺不能显示在文章列表里.
+原因是Hugo模板在循环遍历文件的时候,只要超过当前时间的文章都不会出现.
+时区问题 如果你的文章时间没有指定时区的话.
+像这样2018-11-19 16:14:25,很有可能文章不会显示.
+Hugo时间统一为格林威治时间,因为中国的时间比格林威治时间早8个小时. 格林威治时间没有到你配置的时间的时候,文章是不会出现在文章列表里的.
+解决方案 本地服务
+hugo server --buildFuture  页面生成
+hugo --buildFuture  </description>
+    </item>
+    
+    <item>
+      <title>Hugo博客百度SEO终极优化,熊掌号自动推送</title>
+      <link>https://alili.tech/archive/0xh05yxhj3yq/</link>
+      <pubDate>Sat, 17 Nov 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/0xh05yxhj3yq/</guid>
+      <description>在切换到Hugo平台之后,比较头疼的是之前hexo很多seo的插件不能使用了. 下面跟大家说一下我的seo优化方案.
+Meta标签优化 Description meta description，被认为是最有用的meta标签，是网站的简介信息。 content控制在100个字符以内比较好。
+&amp;lt;meta name=&#39;description&#39; itemprop=&amp;quot;description&amp;quot; content=&amp;quot;{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{substr .Summary 0 100}}{{ end }}{{ end }}&amp;quot;&amp;gt;  Keywords {{ if .Keywords }} &amp;lt;meta name=&amp;quot;keywords&amp;quot; content=&amp;quot;{{ delimit .Keywords &amp;quot;, &amp;quot; }}&amp;quot; &amp;gt; {{else}} &amp;lt;meta name=&amp;quot;keywords&amp;quot; content=&amp;quot;{{ delimit .Site.Params.Keywords &amp;quot;, &amp;quot; }}&amp;quot; &amp;gt; {{ end }}  百度熊掌号推送 说到seo熊掌号是必不可少的了,他可以做到24小时之内收录.所以这个必须不能放过.
+gulp 在这里我要使用gulp来做我的自动化任务管理工具
+安装gulp需要的模块 npm init npm install gulp --save npm install xml2js --save npm install xmlhttprequest --save  在项目根目录创建一个gulpfile.</description>
+    </item>
+    
+    <item>
+      <title>博客构建工具Hugo的基本使用</title>
+      <link>https://alili.tech/archive/obvozmdf/</link>
+      <pubDate>Thu, 15 Nov 2018 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/obvozmdf/</guid>
+      <description>最终还是把博客迁移到了Hugo,当初最纠结的是这套主题在Hugo平台上没有. 但是脑子一热，花了两三天时间。这套主题。全部迁移到了Hugo平台。 接下来就给大家介绍一下Hugo的使用以及踩到的坑,以及解决方案.
+Hugo的性能 正是因为hexo的性能不能满足,在生成静态文件的时候极其不稳定.而且时间也相对比较长一些. 在相同页面数量的情况下,处理速度hugo是hexo20倍及以上.这才是我换Hugo的原因.
+配置文件 两个平台有很多共通的地方,迁移起来有很多工作是非常顺其自然的. 在配置文件上hugo也是可以使用yaml的,所以从hexo迁移过来会相对好很多. 其次hugo还可以使用json作为配置文件,为用户提供了很多选择.
+Hugo的基本使用 Mac平台下 Mac下Hugo提供了homebrew安装的方式，非常简便。
+brew install hugo  Debian and Ubuntu平台下
+sudo apt-get install hugo  Windows平台下 Windows下Hugo提供了Chocolatey方式的安装，通过如下命令即可。
+choco install hugo -confirm  验证安装
+安转完成后，我们打开终端，输入如下命令进行验证是否安装成功
+hugo version  创建一个站点 hugo new site quickstart  添加一个主题 cd quickstart;\ git init;\ git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke;\ # 编辑你的 config.toml 配置文件 # 添加一个叫 Ananke 的主题 echo &#39;theme = &amp;quot;ananke&amp;quot;&#39; &amp;gt;&amp;gt; config.toml  新建一篇文章 hugo new posts/my-first-post.</description>
+    </item>
+    
+    <item>
+      <title>Hexo Process Out of Memory 内存溢出问题</title>
+      <link>https://alili.tech/archive/c38d0045/</link>
+      <pubDate>Tue, 13 Nov 2018 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/c38d0045/</guid>
+      <description>hexo内存溢出问题 当hexo生成文章大概在1000左右的时候,便有可能出现该问题.
+FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - process out of memory  解决方法: # 找到hexo 命令的位置 which hexo  编辑hexo命令的bin文件的第一行为以下内容.
+#!/usr/bin/env node --max_old_space_size=8192  便暂时解决内存溢出的问题.
+hexo的性能 hexo的性能相对hugo确实差太多,同样1000+的页面,用hugo却只用了不到2s. 这让我开始开始犹豫是否要放弃使用hexo.</description>
+    </item>
+    
+    <item>
+      <title>Code Review工具推荐以及使用报告</title>
+      <link>https://alili.tech/archive/cf2c83a/</link>
+      <pubDate>Mon, 12 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cf2c83a/</guid>
+      <description>随之团队的扩大，统一编码规范，提高编码质量，变得尤为重要。代码审查作为可以有效提高代码质量的方式之一,有必要在公司推行代码审查制度. 让团队养成代码审查的习惯,提高代码质量,提前规避不必要的问题.
+为了更加高效的代码审核,需要一款代码审查工具.所以才有了这份使用报告.
+下面是我在使用中,尝试使用的一些工具.以及一些使用上的评价与总结.
+1) CodeStriker CodeStriker免费和开源的web应用程序,可以帮助开发人员基于web的代码审查。开发者canensures问题,评论和决策是记录在一个数据库,并提供一个舒适的工作空间实际执行代码检查。
+
+ 价格: 免费 UI交互: ★ 安装维护 :★★★ 易学程度: ★★★★★   总结: CodeStriker 对于一个代码审查工具来说,功能上已经可以基本满足.但是因为开发时间太过久远,已经很长时间没有人在维护了,而且UI比较有历史的味道.
+ 2) RhodeCode RhodeCode也是一个很好的工具,回顾你的代码并找出代码中的bug和问题并删除后检查代码。
+
+ 价格: 社区版本免费,企业版本收费 UI交互: ★★★★ 安装维护 :★★★ 易学程度: ★★★★★   总结: RhodeCode在使用使用过程中,还是比较优秀的.工具的安装部署使用docker也比较方便.使用上比较顺畅,可以作为使用的备选软件.
+ 3) Code Brag Codebrag是一个简单的和轻量级的工具,代码审查,让这一过程为您的团队工作。它有助于解决一些问题像非阻塞的代码评审,智能电子邮件通知,内联注释,喜欢得多。
+
+ 价格: 免费 UI交互: ★★★★ 安装维护 :★★★★ 易学程度: ★★★★★   总结: Codebrag 是一款开源工具,安装起来不算难.也有一定程度上的社交属性.在使用期间官网在国内打不开,软件的安装资源不是很好获取.
+ 4) Phabricator Phabricator是一个开源软件和web应用程序包括代码评审,主持GIT / Hg / SVN,发现错误时,浏览源代码和审计等</description>
+    </item>
+    
+    <item>
+      <title>如何通过 Code Review 帮助团队提升代码质量</title>
+      <link>https://alili.tech/archive/bbaf6d07/</link>
+      <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/bbaf6d07/</guid>
+      <description>代码审查解决方案 最近在推进公司的代码审查. 经过几天的研究之后,整理出一些问题与解决方案.
+当前面临的问题  没有一个好的工具方便代码审查 没有一个好的代码标准代码审查 没有一个流程强制执行代码审查 没有一个固定职责的人来代码审查 代码审查之后的修改跟踪问题 代码审查者与代码修复者鼓励机制 跨团队资源调配的时候,容易造成过多的代码  解决方案 加入Merge Request工作流 在Gitlab上做代码审查,我们需要在我们现有的git工作流上加入Merge Request.
+工作方式 Merge Request可以和功能分支工作流、Gitflow工作流或Forking工作流一起使用。过程是这样的：
+ 开发者在本地仓库中新建一个专门的分支开发功能。 开发者push分支修改到公开的Git仓库中。 开发者通过Git发起一个Merge Request。 团队的其它成员代码审查，讨论并修改。 项目维护者合并功能到官方仓库中并关闭Merge Request。  结合到我们现有工作流当中 我们现在代码管理的工作流叫: Gitflow工作流
+Gitflow工作流和功能分支工作流类似，但围绕项目发布定义一个严格的分支模型。
+在Gitflow工作流中使用Merge Request让开发者在发布分支或是维护分支上工作时，可以有个方便的地方对关于发布分支或是维护分支的问题进行交流。
+Gitflow工作流中Merge Request的使用过程：当一个功能、发布或是热修复分支需要Review时，开发者简单发起一个Merge Request，团队的其它成员会通过Bitbucket收到通知。
+新功能一般合并到develop分支，而发布和热修复则要同时合并到develop分支和master分支上。Merge Request可能用做所有合并的正式管理。
+审查流程 开始=&amp;gt;start: 代码作者通过git 克隆代码到本地 结束=&amp;gt;end: 结束代码审查 修改代码=&amp;gt;operation: 修改代码并且提交 pr=&amp;gt;operation: 发起 Merge Request 通知=&amp;gt;operation: gitlab 通知相关审核人员 审核=&amp;gt;operation: 审核人员开始审核代码 关闭=&amp;gt;operation: 关闭Merge Request 合并=&amp;gt;operation: 合并代码 代码审核中=&amp;gt;condition: 是否过审 开始-&amp;gt;修改代码-&amp;gt;pr-&amp;gt;通知-&amp;gt;审核-&amp;gt;代码审核中 关闭-&amp;gt;合并-&amp;gt;结束 代码审核中(yes)-&amp;gt;关闭 代码审核中(no)-&amp;gt;修改代码  结合GitLab做代码审查 项目角色介绍    角色 描述     Owner Git 系统管理员   Master Git 项目开发人员   Reporter Git 项目测试人员   Guest 访客    角色权限 我们可以看到Master跟 Owner才有权利把代码合并到受保护的分支上,对于Master角色的分配需要谨慎.</description>
+    </item>
+    
+    <item>
+      <title>升级Mac 10.14 mojave后辅助功能空白无法添加问题</title>
+      <link>https://alili.tech/archive/b8bdc73c/</link>
+      <pubDate>Sun, 04 Nov 2018 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b8bdc73c/</guid>
+      <description> 最近系统升级到Mac mojave 10.14后发现安全性与隐私中的辅助功能是空白的,而且App无论如何都添加不了。 我的macbook pro正常,但是我的mac mini 出现了该问题.让人很是头疼.
+问题原因 应该是升级导致/Library/Application\ Support/com.apple.TCC损坏或权限异常,出现了问题.
+解决方法 执行下面两行命令后重启系统,就可以恢复正常.
+sudo chmod 777 /Library/Application\ Support/com.apple.TCC sudo rm -rf /Library/Application\ Support/com.apple.TCC/TCC.db # 重启系统  </description>
+    </item>
+    
+    <item>
+      <title>2018年11月国内浏览器数据统计</title>
+      <link>https://alili.tech/archive/44b730cc/</link>
+      <pubDate>Thu, 01 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/44b730cc/</guid>
+      <description>  var myChart = echarts.init(document.getElementById(&#39;echarts400&#39;)); var option = JSON.parse(&#34;\n {\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;},\&#34;title\&#34;:{\&#34;text\&#34;:\&#34;2018年11月国内浏览器数据统计\&#34;,\&#34;subtext\&#34;:\&#34;浏览器数据分析\&#34;,\&#34;x\&#34;:\&#34;center\&#34;,\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;tooltip\&#34;:{\&#34;trigger\&#34;:\&#34;item\&#34;,\&#34;formatter\&#34;:\&#34;{a} \u003cbr/\u003e{b} : {c} ({d}%)\&#34;},\&#34;legend\&#34;:{\&#34;type\&#34;:\&#34;scroll\&#34;,\&#34;orient\&#34;:\&#34;vertical\&#34;,\&#34;right\&#34;:10,\&#34;top\&#34;:120,\&#34;bottom\&#34;:20,\&#34;data\&#34;:[\&#34;Chrome\&#34;,\&#34;IE 9.0\&#34;,\&#34;IE 11.0\&#34;,\&#34;QQ\&#34;,\&#34;IE 8.0\&#34;,\&#34;2345\&#34;,\&#34;搜狗高速\&#34;,\&#34;Firefox\&#34;,\&#34;Safari\&#34;,\&#34;其他\&#34;],\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;series\&#34;:[{\&#34;name\&#34;:\&#34;浏览器用户比例\&#34;,\&#34;type\&#34;:\&#34;pie\&#34;,\&#34;radius\&#34;:\&#34;55%\&#34;,\&#34;center\&#34;:[\&#34;50%\&#34;,\&#34;60%\&#34;],\&#34;data\&#34;:[{\&#34;name\&#34;:\&#34;Chrome\&#34;,\&#34;value\&#34;:46.88},{\&#34;name\&#34;:\&#34;IE 9.0\&#34;,\&#34;value\&#34;:7.4},{\&#34;name\&#34;:\&#34;IE 11.0\&#34;,\&#34;value\&#34;:6.21},{\&#34;name\&#34;:\&#34;QQ\&#34;,\&#34;value\&#34;:5.75},{\&#34;name\&#34;:\&#34;IE 8.0\&#34;,\&#34;value\&#34;:5.74},{\&#34;name\&#34;:\&#34;2345\&#34;,\&#34;value\&#34;:5.68},{\&#34;name\&#34;:\&#34;搜狗高速\&#34;,\&#34;value\&#34;:4.74},{\&#34;name\&#34;:\&#34;Firefox\&#34;,\&#34;value\&#34;:2.54},{\&#34;name\&#34;:\&#34;Safari\&#34;,\&#34;value\&#34;:2.48},{\&#34;name\&#34;:\&#34;其他\&#34;,\&#34;value\&#34;:12.59}],\&#34;itemStyle\&#34;:{\&#34;emphasis\&#34;:{\&#34;shadowBlur\&#34;:10,\&#34;shadowOffsetX\&#34;:0,\&#34;shadowColor\&#34;:\&#34;rgba(0, 0, 0, 0.5)\&#34;}}}]}\n&#34;) myChart.setOption(option);  </description>
+    </item>
+    
+    <item>
+      <title>在Webpack与Systemjs中构建你的Single-SPA微前端应用</title>
+      <link>https://alili.tech/archive/1a4f2dcf/</link>
+      <pubDate>Wed, 31 Oct 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/1a4f2dcf/</guid>
+      <description>这里给大家介绍一下基于Single-SPA编写的微前端应用在各种当下流行的构建工具中的使用方法.
+Webpack 2+ 在Webpack 2+版本中,支持import（）做代码分片. 在其他项目中 webpack2+的使用已经相当的广泛,这里就不做过多赘述.
+import {registerApplication} from &#39;single-spa&#39;; registerApplication(&#39;app-name&#39;, () =&amp;gt; import(&#39;./my-app.js&#39;), activeWhen); function activeWhen() { return window.location.pathname.indexOf(&#39;/my-app&#39;) === 0; }  SystemJS 在之前我们的项目中使用的就是SystemJS,方便部署应用后的二次构建.用起来页非常的方便.
+import {registerApplication} from &#39;single-spa&#39;; // Import the registered application with a SystemJS.import call registerApplication(&#39;app-name-1&#39;, () =&amp;gt; SystemJS.import(&#39;./my-app.js&#39;), activeWhen); // Alternatively, use the more out-of-date System.import (instead of SystemJS.import) registerApplication(&#39;app-name-2&#39;, () =&amp;gt; System.import(&#39;./my-other-app.js&#39;), activeWhen); function activeWhen() { return window.location.pathname.indexOf(&#39;/my-app&#39;) === 0; }  Webpack 1 Webpack 1 不支持基于Promise的代码拆分.</description>
+    </item>
+    
+    <item>
+      <title>Single-SPA微前端框架的使用Demo汇总</title>
+      <link>https://alili.tech/archive/22975f44/</link>
+      <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/22975f44/</guid>
+      <description>这些是在github能找到的single-spa微前端的Demo:
+single-spa-examples 这是一个single-spa做的官方例子,这是在线demo.
+simple-single-spa-webpack-example 这是基于webpack构建的使用例子,webpakc版本可能有点低,但是思想是一样的.
+single-spa-angular-cli-examples 基于angular-cli做的angular例子,适用于angular 2.0+ 的版本.
+single-spa-es5-angularjs angularjs的例子,也就是angularjs1.0的版本.
+single-spa-portal-example 这已经是一个非常完整的多技术栈用例了,里面集成了多技术栈与模块之间通讯的思路,非常值得研究.
+microfrontend-base-demo 这是在我们项目中萃取的base模块demo
+microfrontend-submodule-demo 这是在我们项目中萃取的子模块demo</description>
+    </item>
+    
+    <item>
+      <title>Git删除所有提交记录解决方案</title>
+      <link>https://alili.tech/archive/ed854758/</link>
+      <pubDate>Tue, 30 Oct 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ed854758/</guid>
+      <description>如果你之前的项目提交了一些敏感数据,或者要清除以前提交的记录,给出下面解决方案.
+# 1. 检出一个新的分支 git checkout --orphan latest_branch # 2. 暂存所有文件 git add -A # 3. 提交刚刚暂存的文件 git commit -am &amp;quot;commit message&amp;quot; # 4. 删除最原始的分支 git branch -D master # 5. 重命名当的第分支 git branch -m master # 6. 提交你的记录到远程仓库 git push -f origin master  </description>
+    </item>
+    
+    <item>
+      <title>让你的Hexo博客支持熊掌号URL自动推送,百度24小时收录</title>
+      <link>https://alili.tech/archive/9d64fe09/</link>
+      <pubDate>Wed, 24 Oct 2018 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9d64fe09/</guid>
+      <description> 百度推出熊掌号,为了让hexo支持熊掌号推送,我在 hexo-baidu-url-submit 这个插件的基础上加上了熊掌号推送功能. 当天推送的24小时内会直接收录. 用这个,百度的收录速度是非常快的.
+以后再也不用等百度收录等到死也不会理你了.
+熊掌号支持 package.json 里面的内容改为
+ &amp;quot;hexo-baidu-url-submit&amp;quot;: &amp;quot;https://github.com/Fantasy9527/hexo-baidu-url-submit&amp;quot;,  baidu_url_submit 配置 baidu_url_submit: count: 1000 ## 提交最新的一个链接 host: alili.tech ## 在百度站长平台中注册的域名 token: xxxxx ## 请注意这是您的秘钥， 所以请不要把博客源代码发布在公众仓库里! path: baidu_urls.txt ## 文本文档的地址， 新链接会保存在此文本文档里 xz_appid: &#39;xxxxxx&#39; ## 你的熊掌号 appid xz_token: &#39;xxxxxx&#39; ## 你的熊掌号 token xz_count: 10 ## 从所有的提交的数据当中选取最新的10条,该数量跟你的熊掌号而定  deploy 配置 deploy: - type: baidu_url_submitter # 百度 - type: baidu_xz_url_submitter # 百度熊掌号  </description>
+    </item>
+    
+    <item>
+      <title>Nodejs爬虫技巧-使用Puppeteer下载图片或文件</title>
+      <link>https://alili.tech/archive/84622ce5/</link>
+      <pubDate>Tue, 23 Oct 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/84622ce5/</guid>
+      <description>  一些网站的图片不允许外链,我们想要下载这些网站的图片通过Puppeteer是比较好解决的. 今天就给大家介绍一个爬虫技巧,通过Puppeteer下载你想要的图片或者文件.
+ 怎么通过Puppeteer下载? 我们需要额外依赖的库 fs-extra
+代码很简单,主要代码可以简化到两三行
+const fse = require(&#39;fs-extra&#39;); // 需要依赖的库,你想用原生fs也是没有问题的 // 主要代码 var viewSource = await page.goto(url); await fse.outputFile(`path`, await viewSource.buffer()) //下载到你想要的路径  </description>
+    </item>
+    
+    <item>
+      <title>任天堂Switch 6.0&#43; 系统菜单汉化</title>
+      <link>https://alili.tech/archive/b3ccb586/</link>
+      <pubDate>Mon, 15 Oct 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b3ccb586/</guid>
+      <description>任天堂Switch汉化补丁  仅支持6.0 和6.0.1系统 简体中文/繁体中文 支持大气层、ReiNX、RajNX、SXOS（TXOS）  下载地址 汉化安装器 汉化安装器：https://share.weiyun.com/5HNlw1J （强烈推荐）
+覆盖版：（当安装器闪退时使用，覆盖前要把原来的文件删干净。）  简体中文：https://share.weiyun.com/59MqPxr 繁体中文：https://share.weiyun.com/52w0vp8  ReiNX汉化专用版本： 完整支持汉化，已经修复DOOM和2K19的问题 https://share.weiyun.com/58azYtc
+源码来自https://github.com/Reisyukaku/ReiNX
+地址覆盖  大气层覆盖到atmosphere/titles ReiNX覆盖到ReiNX/titles SXOS覆盖到sxos/titles  汉化安装器教程：  首先，用读卡器把SD卡插入电脑。 打开SD卡的盘。 把Nintendo Switch系统汉化补丁.exe 放入卡内。 运行Nintendo Switch系统汉化补丁.exe 看提示选择。  FAQ 汉化影响游戏吗？ 一般汉化导致游戏崩溃是文本出错的原因，新的汉化已经修复大部分的问题。当然实际效果仍需测试。
+5.1系统能用吗？ 虽然5.1系统安装6.0的汉化可以开机。但不保证稳定性。也不保证能用。
+安装程序打不开怎么办？ 安装 Visual C++ Redistributable for Visual Studio 2015 安装程序不支持32位系统，所以用覆盖版就行。
+安装汉化后无法开机怎么办？ 别急，卸载汉化即可，不会影响原系统。
+部分游戏崩溃的问题 如果你的游戏本身打了汉化补丁，是有可能崩溃的（目前已知龙珠超宇宙2）。
+部分游戏崩溃是破解工具本身的问题。比如SXOS2.0极不稳定。大气层某些游戏无法运行与存档。如果你用的是SXOS 2.xx ，运行XCI游戏有很大几率崩溃，应该与汉化无关。
+SXOS (2.0, 2.0.1, 2.1) XCI游戏待机死机的问题如果你的游戏本身使用了汉化，待机很大几率死机。与系统汉化无关。
+关于6.0.1系统 根据测试，6.0.1系统没有对文本做改动，所以6.0的汉化是完全可以兼容的。
+注意事项  文件拷贝不建议使用mac系统!!! 文件拷贝不建议使用mac系统!</description>
+    </item>
+    
+    <item>
+      <title>Switch的NSP和XCI什么区别？</title>
+      <link>https://alili.tech/archive/150b3ba6/</link>
+      <pubDate>Sun, 14 Oct 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/150b3ba6/</guid>
+      <description>最近在折腾Switch, 在游戏安装中出现了两种游戏格式,分别是
+ xci nsp  他们之间到底有什么区别? 在实际使用中: xci，扔到内存卡里就可以使用, nsp，需要安装之后才能使用 简单理解就是，xci是绿色版软件（正确说应该是ISO），nsp是安装版软件。
+因为xci相当于卡带，不需要安装，需要切换. nsp相当于数字版，需要安装，安装完直接能玩
+所有的DLC或者更新包之类的都是nsp格式.
+当我们使用xci格式的软件的时候,想要安装更新升级包的时候,其实都是nsp格式的,直接安装nsp效果都是一样的.
+平常使用中,我喜欢nsp,安装过后就可以直接打开软件了,不需要再切换一次.个人觉得使用nsp是一劳永逸的.
+关于汉化 其实都是可以汉化的.两种格式只有使用上的差别,其他的并没有差别.</description>
+    </item>
+    
+    <item>
+      <title>Nintendo Switch破解原理</title>
+      <link>https://alili.tech/archive/33fa548c/</link>
+      <pubDate>Thu, 11 Oct 2018 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/33fa548c/</guid>
+      <description>Nintendo Switch Nintendo Switch ，是任天堂出品的电子游戏机 ，于2017年3月3日在日本、北美、欧洲和香港发售，同年12月1日在韩国与台湾发售。 拥有可拆卸控制器和可分离式主机，游戏载体使用了专用卡匣 。 主机处理器使用了NVIDIA定制的Tegra X1系统芯片 ，这是任天堂首次采用NVIDIA的系统芯片。 任天堂Switch主机的内置存储空间为32GB，可使用microSD进行扩充，最高支持microSDXC标准，最大支持2TB容量； 主机在初始系统1.0.0时只能支持到microSD标准，发售同日提供的系统2.0 .0更新使其可支持microSDXC标准。
+破解原理 Nintendo Switch（任天堂switch） 的CPU使用的是Nvidia X1 T210的处理器，存在一个可进入的工程模式（Recovery Mode），简称RCM， Nintendo Switch的右joycon连接口中隐藏着一个特殊金属引脚（pin10）。如果在开机时，按住音量键+，并且将这个引脚接地（pin1,7,9），Nintendo Switch就能进入工程模式（RCM），从而设法运行自制代码。
+你可以在淘宝上轻易买到这个短接器。也可以通过锡纸，别针或者3D打印等很方便的制作。短接器的作用就是将这个特殊引脚接地。 由上可知， Nintendo Switch破解依赖的是基于Nvidia X1 T210的处理器的工程模式。注入（发射）特殊代码引导自制系统或程序。达成破解。
+这个方法不会被封堵，普通的系统更新补并不会影响破解。无法通过软件层面封堵。因为工程模式启动的优先级高于系统。不论以后更新什么系统，进入RCM（工程模式是没有问题的），在即将到来的6.0版本，也只是更改了游戏文件的存储方式，变相的防范破解，目前TX1.9版本已经加入了破解。
+正因为破解是基于开机短接进入工程模式的原理，在任意一次关机后，破解就会失效，需要重新进行破解。
+破解后可做什么，有没有什么问题 Nintendo Switch 的系统本质上可以看作是一个改版的LINUX的操作系统，.通过破解后，编译新的程序，可以Dump你手中的实体卡带游戏，导出存档，甚至可以看小说，听音乐，作为其他游戏主机的模拟器。玩破解游戏只是其中的一个功能。 所以，在放入存储卡时候，因为系统格式化的不同，也会存在一次升级的情况，这是由于不同系统对于文件存储分区的逻辑不同导致的。
+扩展阅读：破解后您可以安装一个真正的发行版的Linux系统Lakka，
+着力推荐国内开发者的Lakka系统，这是独立于国外的一个项目，让我们感谢他。 最强模拟器系统 lakka修改模拟游戏分辨率和纹理和安装教程 https://www.91wii.com/thread-96053-1-1.html
+关于BAN机 由于任天堂在联网时会验证游戏文件头（每个游戏的文件头都是唯一的），所以玩破解游戏，修改存档等，都会导致被Ban，目前主要体现为两种， 普通BAN：具体的表现为无法联机游戏，无法进Eshop（商店），同时会由错误代码出现，但是目前游戏正常更新（例如更新中文语言）并不受影响。您可以理解为Ban机是限制了网络功能。 更为严厉的ban机措施，大家称之为Super Ban，具体的表现为联网后出现错误代码2137-7403，同时主机无法更新，游戏和dlc也无法更新，也就说，任天堂将你的主机序列号加入黑名单，直接断开所有同任天堂的联系。
+您可以破解之后，进行系统备份。但目前已经出现有朋友因为不熟悉备份恢复流程变砖，所以这里不放链接，如果您要做这个事情， 记得“一机一码”，自己的备份文件只能自己用，不能用别人的。同时恢复分区的时候，要留意不要恢复错的文件，一旦误操作，是不可恢复的变砖。
+我更建议，破解后断开网络，等要联网之前，重置主机再联网，可以大概率从正。这个风险较小。
+破解方式 目前，Nintendo Switch的破解存在两个大的分支。 一类是免费的大气层/REI/破解TX安装器等。此类只能支持NSP格式游戏安装。略微复杂 一类是收费的TX OS。此类支持卡带DUPM出来的XCI格式，同时支持NSP安装。
+因为代码公开，所以破解方式也变得逐渐多样化，希望您了解具体原理，而不是纠结于具体哪种破解方式，大致来说，论坛中简单热门的就是最好的破解方式。论坛中有不少不错的整合包，您可以任选其一进行安装。
+参考资料: https://www.91wii.com/thread-93105-1-1.html</description>
+    </item>
+    
+    <item>
+      <title>使用Eggjs(koa) &amp; web3.js开发你的以太坊Dapp</title>
+      <link>https://alili.tech/archive/69a6fd18/</link>
+      <pubDate>Wed, 10 Oct 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/69a6fd18/</guid>
+      <description>Eggjs Eggjs 是阿里开源的企业级基于Koa2的Node.js框架. eggjs基本上是开箱即用,奉行『约定优于配置』.在日常开发中,用起来非常顺畅. 而且生态也比较完善,koa2的插件都可以对接到框架中来.
+Egg.js 目录结构 egg-project ├── package.json ├── app.js (可选) ├── agent.js (可选) ├── app | ├── router.js │ ├── controller │ | └── home.js │ ├── service (可选) │ | └── user.js │ ├── middleware (可选) │ | └── response_time.js │ ├── schedule (可选) │ | └── my_task.js │ ├── public (可选) │ | └── reset.css │ ├── view (可选) │ | └── home.tpl │ └── extend (可选) │ ├── helper.</description>
+    </item>
+    
+    <item>
+      <title>2018年10月国内浏览器数据统计</title>
+      <link>https://alili.tech/archive/4a50d81d/</link>
+      <pubDate>Mon, 01 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/4a50d81d/</guid>
+      <description>  var myChart = echarts.init(document.getElementById(&#39;echarts400&#39;)); var option = JSON.parse(&#34;\n {\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;},\&#34;title\&#34;:{\&#34;text\&#34;:\&#34;2018年10月国内浏览器数据统计\&#34;,\&#34;subtext\&#34;:\&#34;浏览器数据分析\&#34;,\&#34;x\&#34;:\&#34;center\&#34;,\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;tooltip\&#34;:{\&#34;trigger\&#34;:\&#34;item\&#34;,\&#34;formatter\&#34;:\&#34;{a} \u003cbr/\u003e{b} : {c} ({d}%)\&#34;},\&#34;legend\&#34;:{\&#34;type\&#34;:\&#34;scroll\&#34;,\&#34;orient\&#34;:\&#34;vertical\&#34;,\&#34;right\&#34;:10,\&#34;top\&#34;:120,\&#34;bottom\&#34;:20,\&#34;data\&#34;:[\&#34;Chrome\&#34;,\&#34;IE 9.0\&#34;,\&#34;IE 11.0\&#34;,\&#34;2345\&#34;,\&#34;QQ\&#34;,\&#34;IE 8.0\&#34;,\&#34;搜狗高速\&#34;,\&#34;Safari\&#34;,\&#34;Firefox\&#34;,\&#34;其他\&#34;],\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;series\&#34;:[{\&#34;name\&#34;:\&#34;浏览器用户比例\&#34;,\&#34;type\&#34;:\&#34;pie\&#34;,\&#34;radius\&#34;:\&#34;55%\&#34;,\&#34;center\&#34;:[\&#34;50%\&#34;,\&#34;60%\&#34;],\&#34;data\&#34;:[{\&#34;name\&#34;:\&#34;Chrome\&#34;,\&#34;value\&#34;:47.08},{\&#34;name\&#34;:\&#34;IE 9.0\&#34;,\&#34;value\&#34;:7.89},{\&#34;name\&#34;:\&#34;IE 11.0\&#34;,\&#34;value\&#34;:5.97},{\&#34;name\&#34;:\&#34;2345\&#34;,\&#34;value\&#34;:5.9},{\&#34;name\&#34;:\&#34;QQ\&#34;,\&#34;value\&#34;:5.88},{\&#34;name\&#34;:\&#34;IE 8.0\&#34;,\&#34;value\&#34;:5.59},{\&#34;name\&#34;:\&#34;搜狗高速\&#34;,\&#34;value\&#34;:4.68},{\&#34;name\&#34;:\&#34;Safari\&#34;,\&#34;value\&#34;:2.43},{\&#34;name\&#34;:\&#34;Firefox\&#34;,\&#34;value\&#34;:2.42},{\&#34;name\&#34;:\&#34;其他\&#34;,\&#34;value\&#34;:12.16}],\&#34;itemStyle\&#34;:{\&#34;emphasis\&#34;:{\&#34;shadowBlur\&#34;:10,\&#34;shadowOffsetX\&#34;:0,\&#34;shadowColor\&#34;:\&#34;rgba(0, 0, 0, 0.5)\&#34;}}}]}\n&#34;) myChart.setOption(option);  </description>
+    </item>
+    
+    <item>
+      <title>Centos7环境下启动Upsource失败解决办法</title>
+      <link>https://alili.tech/archive/66c1c154/</link>
+      <pubDate>Sat, 29 Sep 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/66c1c154/</guid>
+      <description>报错 Centos7环境下启动Upsource的时候出现以下报错,我在Mac上启动upsource的时候一切正常.
+[Upsource Error] Failed to start JetBrains Upsource 2018.2 due to unexpected exception: Native random generator does not seem to have enough entropy for JetBrains Upsource 2018.2 to start. [Upsource Error] You can fix it by switching to PRNG (with -Djava.security.egd=/dev/zrandom) or by reconfiguring your operation system to provide more random bits.12  解决办法  复制 upsource.jvmoptions.dist ==&amp;gt; upsource.jvmoptions  cp $upsource_path/conf/upsource.jvmoptions.dist $upsource_path/conf/upsource.jvmoptions   编辑 $upsource_path/conf/upsource.jvmoptions文件,最后一行加上:  -Djava.</description>
+    </item>
+    
+    <item>
+      <title>利用ngrok给你的机器打个洞 - 内网穿透</title>
+      <link>https://alili.tech/archive/df8d5e8d/</link>
+      <pubDate>Wed, 12 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/df8d5e8d/</guid>
+      <description>我有很多自己的个人代码是跑在家里的服务器中的.一般来说都是自动化的处理我的一些生活问题,与数据收集等相关活动. 所以一般没有客户端访问家里服务器的需求. 但是很多时候脑子突发奇想.有一些小点子,一些小的bug或者小的优化,代码修改完成之后,有一个部署到需求. 因为家里服务器没有一个稳定的外网IP的,外网不能直接连接服务器. 所以我们需要 内网穿透.
+内网穿透 家里用的是小米路由器,小米路由器里面集成了花生壳,理论上是可以做到内网穿透的.无奈的是,一直都没有配置成功过.
+网上找过很多内网穿透的工具: * 花生壳 * NAT * frp * ngrok * localtunnel
+ngrok 选择ngrok的原因很简单,配置方便,并且支持tcp协议. 支持tcp协议代表,我可以直接在外面用SSH来访问家里的机器.
+用法  首先你需要去官网注册一个账号 下载ngrok,并且解压到一个你喜欢的目录下面 去官网复制你的授权码 授权ngrok  ngrok authtoken 授权码  http ngrok http 8080  tcp ngrok tcp 22  最终你会得到,一个外网可以访问的地址. 用这个地址就可以直接访问到你本机的端口了.
+当我们拥有这样一个公网地址之后,我们就可以ssh来控制家里的机器 或者使用github的webhook来做一切你想要做的事情.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案8 - 二次构建</title>
+      <link>https://alili.tech/archive/ce685b9f/</link>
+      <pubDate>Fri, 07 Sep 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ce685b9f/</guid>
+      <description>二次构建  进一步优化我们的微前端性能
+ 在微前端这种形势的架构,每个模块都会输出固定的文件,比如之前说的:
+ 项目配置文件 Store.js 文件 main.js 渲染入口文件   这三个,是微前端架构中每个模块必要的三个文件.
+ 在模块加载器启动整个项目的时候,都必须要加载所有模块的配置文件与Store.js文件. 在前面的文章中有说 配置自动化的问题,这其实就是一种简单的二次构建. 虽然每一个模块的配置文件体积不是很大,但是每一个文件都会加载,是项目启动的必要文件. 每一个文件都会占一个http请求,每一个文件的阻塞都会影响项目的启动时间.
+所以,我们的Store.js也必须是要优化的. 当然如果我们的模块数量不是很多的话,我们没有优化的必要.但是一旦项目变得更加庞大,有好几十个模块. 我们不可能一次加载几十个文件,我们必须要在项目部署之后,还要对整个项目重新再次构建来优化与整合我们的项目.
+我们的Store.js 是一个amd模块,所以我们需要一个合并amd模块的工具.
+Grunt or Gulp 像这样的场景,用grunt,gulp这样的任务管理工具再合适不过了. 不管这两个工具好像已经是上个世纪的东西了,但是他的生态还是非常完善的.用在微前端的二次构建中非常合适.
+例如Gulp:
+const gulp = require(&#39;gulp&#39;); const concat = require(&#39;gulp-concat&#39;); gulp.task(&#39;storeConcat&#39;, function () { gulp.src(&#39;project/**/Store.js&#39;) .pipe(concat(&#39;Store.js&#39;)) //合并后的文件名 .pipe(gulp.dest(&#39;project/&#39;)); });  像这样的优化点还有非常多,在项目发布之后,在二次构建与优化代码. 在后期庞大的项目中,是有很多空间来提升我们项目的性能的.
+未完待续 &amp;hellip;
+相关文章 前端微服务化解决方案1 - 思考
+前端微服务化解决方案2 - Single-SPA
+前端微服务化解决方案3 - 模块加载器
+前端微服务化解决方案4 - 消息总线
+前端微服务化解决方案5 - 路由分发</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案7 - 静态数据共享</title>
+      <link>https://alili.tech/archive/5e00e43d/</link>
+      <pubDate>Thu, 06 Sep 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/5e00e43d/</guid>
+      <description>在前面的一些介绍,相信你对微前端已经有了一个相对完整的认知. 下面介绍一下,再开发过程中我的一些小技巧与处理方法.
+动态入口 当有新的子模块会挂载到项目中的时候,在UI中肯定需要一个新的入口进入子模块的UI. 而这样一个入口,是需要动态生成的.
+例如:图中左边的菜单,不应该是代码写死的.而是根据每个模块提供的数据自动生成的.
+不然每次发布新的模块,我们都需要在最外面的这个框架修改代码.这样就谈不上什么独立部署了.
+静态数据共享 想要达到上面所的效果,我们可以这样做.
+// ~/common/menu.js import { isUrl } from &#39;../utils/utils&#39; let menuData = [ { name: &#39;模块1&#39;, icon: &#39;table&#39;, path: &#39;module1&#39;, rank: 1, children: [ { name: &#39;Page1&#39;, path: &#39;page1&#39;, }, { name: &#39;Page2&#39;, path: &#39;page2&#39;, }, { name: &#39;Page3&#39;, path: &#39;page3&#39;, }, ], } ] let originParentPath = &#39;/&#39; function formatter(data, parentPath = originParentPath, parentAuthority) { ... } // 在这里,我们对外导出 这个模块的菜单数据 export default menuData  // Store.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案6 - 构建与部署</title>
+      <link>https://alili.tech/archive/ffb0c5ab/</link>
+      <pubDate>Wed, 05 Sep 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ffb0c5ab/</guid>
+      <description>微前端打包构建 微前端项目的打包,是有一些需要注意的点 以webpack为例:
+amd模块 在之前的文章,我们有提到我们的加载器,是基于System.js来做的. 所以我们微前端的模块最终打包,是要符合模块规范的. 我们使用的是amd模块规范来构建我们的模块.
+指定基础路径 因为模块打包后,调用模块出口文件的,是模块加载器. 为了清晰的管理每个模块,并且正确的加载到我们每一个模块的资源, 我们给模块的资源都指定一个publicPath.
+ 下面给出一个简单的 webpack 配置,这些配置我只是列出一些必要选项. 并不是一个完整的webpack配置,后续我会提供完整的微前端的Demo,提供大家参考 这些配置都是基于 create-react-app 的配置做的修改. 只要明白了配置的意图,明白我们打包出来的最终是一个什么样的包, 不管打包工具以后怎么变,技术栈怎么变,最后都是可以对接到微前端中来.
+ 这里给出 project.json 的内容,便于后面的配置文件的阅读
+// project.json { &amp;quot;name&amp;quot;: &amp;quot;name&amp;quot;, //模块名称 &amp;quot;path&amp;quot;: &amp;quot;/project&amp;quot;, //模块url前缀 &amp;quot;prefix&amp;quot;: &amp;quot;/module-prefix/&amp;quot;, //模块文件路径前缀 &amp;quot;main&amp;quot;: &amp;quot;/module-prefix/main.js&amp;quot;, //模块渲染出口文件 &amp;quot;store&amp;quot;: &amp;quot;/module-prefix/store.js&amp;quot;,//模块对外接口 &amp;quot;base&amp;quot;: true // 是否为baseapp }  // 引入项目配置文件,也是前面说的 模块加载器必要文件之一 const projectConfig = require(&#39;./project.json&#39;) let config = { entry: { main: paths.appIndexJs, //出口文件,模块加载器必要文件之一 store: paths.store // 对外api的reducer文件,模块加载器必要文件之一 }, output: { path: paths.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案5 - 路由分发</title>
+      <link>https://alili.tech/archive/5ff0b366/</link>
+      <pubDate>Tue, 04 Sep 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/5ff0b366/</guid>
+      <description>路由分发式微前端 从应用分发路由到路由分发应用 用这句话来解释,微前端的路由,再合适不过来.
+ 路由分发式微前端，即通过路由将不同的业务分发到不同的、独立前端应用上。其通常可以通过 HTTP 服务器的反向代理来实现，又或者是应用框架自带的路由来解决。 就当前而言，通过路由分发式的微前端架构应该是采用最多、最易采用的 “微前端” 方案。但是这种方式看上去更像是多个前端应用的聚合，即我们只是将这些不同的前端应用拼凑到一起，使他们看起来像是一个完整的整体。但是它们并不是，每次用户从 A 应用到 B 应用的时候，往往需要刷新一下页面。 &amp;ndash; 引用自phodal 微前端的那些事儿
+ 在模块加载器那一章的示例代码,已经非常充分了展示了路由分发应用的步骤.
+在单页面前端的路由,目前有两种形式, 一种是所有主流浏览器都兼容多hash路由, 基本原理为url的hash值的改变,触发了浏览器onhashchange事件,来触发组件的更新
+还有一种是高级浏览器才支持的 History API, 在 window.history.pushState(null, null, &amp;quot;/profile/&amp;quot;);的时候触发组件的更新
+// hash 模式,项目路由用的是hash模式会用到该函数 export function hashPrefix(app) { return function (location) { let isShow = false //如果该应用 有多个需要匹配的路劲 if(isArray(app.path)){ app.path.forEach(path =&amp;gt; { if(location.hash.startsWith(`#${path}`)){ isShow = true } }); } // 普通情况 else if(location.hash.startsWith(`#${app.path || app.url}`)){ isShow = true } return isShow; } } // pushState 模式 export function pathPrefix(app) { return function (location) { let isShow = false //如果该模块 有多个需要匹配的路径 if(isArray(app.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案4 - 消息总线</title>
+      <link>https://alili.tech/archive/a9a1f81b/</link>
+      <pubDate>Mon, 03 Sep 2018 01:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/a9a1f81b/</guid>
+      <description>微前端的消息总线,主要的功能是搭建模块与模块之间通讯的桥梁.
+ 黑盒子 问题1: 应用微服务化之后,每一个单独的模块都是一个黑盒子, 里面发生了什么,状态改变了什么,外面的模块是无从得知的. 比如模块A想要根据模块B的某一个内部状态进行下一步行为的时候,黑盒子之间没有办法通信.这是一个大麻烦.
+问题2 每一个模块之间都是有生命周期的.当模块被卸载的时候,如何才能保持后续的正常的通信?
+ ps. 我们必须要解决这些问题,模块与模块之间的通讯太有必要了.
+ 打破壁垒 在github上single-spa-portal-example,给出来一解决方案.
+基于Redux实现前端微服务的消息总线(不会影响在编写代码的时候使用其他的状态管理工具).
+大概思路是这样的: 每一个模块,会对外提供一个 Store.js.
+这个文件里面的内容,大致是这样的.
+import { createStore, combineReducers } from &#39;redux&#39; const initialState = { refresh: 0 } function render(state = initialState, action) { switch (action.type) { case &#39;REFRESH&#39;: return { ...state, refresh: state.refresh + 1 } default: return state } } // 向外输出 Store export const storeInstance = createStore(combineReducers({ namespace: () =&amp;gt; &#39;base&#39;, render }))  对于这样的代码,有没有很熟悉?</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案3 - 模块加载器</title>
+      <link>https://alili.tech/archive/1a60cede/</link>
+      <pubDate>Mon, 03 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/1a60cede/</guid>
+      <description>微前端的模块加载器,主要功能为: * 项目配置文件的加载 * 项目对外接口文件的加载(消息总线会用到,后续会提) * 项目入口文件的加载
+ 以上也是每一个单模块,不可缺少的三部分
+ 配置文件 我们实践微前端的过程中,我们对每个模块项目,都有一个对外的配置文件. 是模块在注册到singe-spa时候所用到的信息.
+{ &amp;quot;name&amp;quot;: &amp;quot;name&amp;quot;, //模块名称 &amp;quot;path&amp;quot;: &amp;quot;/project&amp;quot;, //模块url前缀 &amp;quot;prefix&amp;quot;: &amp;quot;/module-prefix/&amp;quot;, //模块文件路径前缀 &amp;quot;main&amp;quot;: &amp;quot;/module-prefix/main.js&amp;quot;, //模块渲染出口文件 &amp;quot;store&amp;quot;: &amp;quot;/module-prefix/store.js&amp;quot;,//模块对外接口 &amp;quot;base&amp;quot;: true // 当模块被定性为baseApp的时候, // 不管url怎么变化,项目也是会被渲染的, // 使用场景为,模块职责主要为整个框架的布局或者一直被渲染,不会改变的部分 }  当我们的模块,有多种url前缀的时候,path也可以为数组形式
+{ &amp;quot;path&amp;quot;: [&amp;quot;/project-url-path1/&amp;quot;,&amp;quot;/project-url-path2/&amp;quot;], //项目url前缀 }  配置自动化 我们每个模块都有上面所描述的配置文件,当我们的项目多个模块的时候,我们需要把所有模块的配置文件聚合起来. 我这里也有写一个脚本.
+micro-auto-config
+使用方法:
+npm install micro-auto-config -g # 在项目根目录,用pm2启动该脚本,便可启动这个项目的配置自动化 pm2 start micro-auto-config   大概思路是:当模块部署,服务器检测到项目文件发生改变,便开始找出所有模块的配置文件,把他们合并到一起. 以数组包对象的形式输出一个总体的新配置文件 project.config.js. 当我们一个模块配置有更新,部署到线上的时候,项目配置文件会自动更新.
+ 模块加载器 这个文件直接引入到html中,也就是上一篇文章中的single-spa-config.js 升级版. 在加载模块的时候,我们使用SystemJS作为我们的模块加载工具.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案2 - Single-SPA</title>
+      <link>https://alili.tech/archive/11052bf4/</link>
+      <pubDate>Sun, 02 Sep 2018 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/11052bf4/</guid>
+      <description>技术选型 经过各种技术调研我们最终选择的方案是基于 Single-SPA 来实现我们的前端微服务化.
+你的浏览器不支持视频  Single-SPA  一个用于前端微服务化的JavaScript前端解决方案
+ 使用Single-SPA之后,你可以这样做:
+ (兼容各种技术栈)在同一个页面中使用多种技术框架(React, Vue, AngularJS, Angular, Ember等任意技术框架),并且不需要刷新页面. (无需重构现有代码)使用新的技术框架编写代码,现有项目中的代码无需重构. (更优的性能)每个独立模块的代码可做到按需加载,不浪费额外资源. 每个独立模块可独立运行.  下面是一个微前端的演示页面 (你可能需要科学的上网) https://single-spa.surge.sh/ &amp;gt; 以上是官方例子,但是官方例子中并没有解决一个问题.就是各种技术栈的路由实现方式大相径庭,如何做到路由之间的协同? 后续文章会讲解,如何解决这样的问题.
+单体应用对比前端微服务化 普通的前端单体应用 微前端架构 Single-SPA的简单用法 1.创建一个HTML文件 &amp;lt;html&amp;gt; &amp;lt;body&amp;gt; &amp;lt;div id=&amp;quot;root&amp;quot;&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;script src=&amp;quot;single-spa-config.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt;  2.创建single-spa-config.js 文件 // single-spa-config.js import * as singleSpa from &#39;single-spa&#39;; // 加载react 项目的入口js文件 (模块加载) const loadingFunction = () =&amp;gt; import(&#39;./react/app.js&#39;); // 当url前缀为 /react的时候.返回 true (底层路由) const activityFunction = location =&amp;gt; location.</description>
+    </item>
+    
+    <item>
+      <title>前端微服务化解决方案1 - 思考</title>
+      <link>https://alili.tech/archive/ea599f7c/</link>
+      <pubDate>Sat, 01 Sep 2018 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ea599f7c/</guid>
+      <description>近几年,微服务架构在后端技术社区大红大紫,它被认为是IT软件架构的未来技术方向.我们如何借鉴后端微服务的思想来构建一个现代化前端应用? 在这里我提供一个可以在产品中真正可以落地的前端微服务解决方案.
+ 微服务化后端前后端对比 后端微服务化的优势:  复杂度可控: 体积小、复杂度低，每个微服务可由一个小规模开发团队完全掌控，易于保持高可维护性和开发效率。 独立部署: 由于微服务具备独立的运行进程，所以每个微服务也可以独立部署。 技术选型灵活: 微服务架构下，技术选型是去中心化的。每个团队可以根据自身服务的需求和行业发展的现状，自由选择最适合的技术栈。 容错: 当某一组建发生故障时，在单一进程的传统架构下，故障很有可能在进程内扩散，形成应用全局性的不可用。 扩展: 单块架构应用也可以实现横向扩展，就是将整个应用完整的复制到不同的节点。  前端微服务化后的优势:  复杂度可控: 每一个UI业务模块由独立的前端团队开发,避免代码巨无霸,保持开发时的高速编译,保持较低的复杂度,便于维护与开发效率。 独立部署: 每一个模块可单独部署,颗粒度可小到单个组件的UI独立部署,不对其他模块有任何影响。 技术选型灵活: 也是最具吸引力的,在同一项目下可以使用如今市面上所有前端技术栈,也包括未来的前端技术栈。 容错: 单个模块发生错误,不影响全局。 扩展: 每一个服务可以独立横向扩展以满足业务伸缩性，与资源的不必要消耗；  我们何时需要前端微服务化?  项目技术栈过于老旧,相关技能的开发人员少,功能扩展吃力,重构成本高,维护成本高. 项目过于庞大,代码编译慢,开发体差,需要一种更高维度的解耦方案. 单一技术栈无法满足你的业务需求  其中面临的问题与挑战 我们即将面临以下问题:
+ 我们如何实现在一个页面里渲染多种技术栈? 不同技术栈的独立模块之间如何通讯? 如何通过路由渲染到正确的模块? 在不同技术栈之间的路由该如何正确触发? 项目代码别切割之后,通过何种方式合并到一起? 我们的每一个模块项目如何打包? 前端微服务化后我们该如何编写我们的代码? 独立团队之间该如何协作?   后续的文章我会一一解答以上问题,一起挖掘前端微服务的潜力. 跳出概念,实实在在的落地到你的项目中. 未完待续 &amp;hellip;
+ 相关文章 前端微服务化解决方案1 - 思考
+前端微服务化解决方案2 - Single-SPA
+前端微服务化解决方案3 - 模块加载器
+前端微服务化解决方案4 - 消息总线
+前端微服务化解决方案5 - 路由分发</description>
+    </item>
+    
+    <item>
+      <title>2018年09月国内浏览器数据统计</title>
+      <link>https://alili.tech/archive/c25273ee/</link>
+      <pubDate>Sat, 01 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/c25273ee/</guid>
+      <description>  var myChart = echarts.init(document.getElementById(&#39;echarts400&#39;)); var option = JSON.parse(&#34;\n{\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;},\&#34;title\&#34;:{\&#34;text\&#34;:\&#34;2018年11月国内浏览器数据统计\&#34;,\&#34;subtext\&#34;:\&#34;浏览器数据分析\&#34;,\&#34;x\&#34;:\&#34;center\&#34;,\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;tooltip\&#34;:{\&#34;trigger\&#34;:\&#34;item\&#34;,\&#34;formatter\&#34;:\&#34;{a} \u003cbr/\u003e{b} : {c} ({d}%)\&#34;},\&#34;legend\&#34;:{\&#34;type\&#34;:\&#34;scroll\&#34;,\&#34;orient\&#34;:\&#34;vertical\&#34;,\&#34;right\&#34;:10,\&#34;top\&#34;:120,\&#34;bottom\&#34;:20,\&#34;data\&#34;:[\&#34;Chrome\&#34;,\&#34;IE 9.0\&#34;,\&#34;IE 11.0\&#34;,\&#34;QQ\&#34;,\&#34;IE 8.0\&#34;,\&#34;2345\&#34;,\&#34;搜狗高速\&#34;,\&#34;Firefox\&#34;,\&#34;Safari\&#34;,\&#34;其他\&#34;],\&#34;textStyle\&#34;:{\&#34;color\&#34;:\&#34;#fff\&#34;}},\&#34;series\&#34;:[{\&#34;name\&#34;:\&#34;浏览器用户比例\&#34;,\&#34;type\&#34;:\&#34;pie\&#34;,\&#34;radius\&#34;:\&#34;55%\&#34;,\&#34;center\&#34;:[\&#34;50%\&#34;,\&#34;60%\&#34;],\&#34;data\&#34;:[{\&#34;name\&#34;:\&#34;Chrome\&#34;,\&#34;value\&#34;:46.88},{\&#34;name\&#34;:\&#34;IE 9.0\&#34;,\&#34;value\&#34;:7.4},{\&#34;name\&#34;:\&#34;IE 11.0\&#34;,\&#34;value\&#34;:6.21},{\&#34;name\&#34;:\&#34;QQ\&#34;,\&#34;value\&#34;:5.75},{\&#34;name\&#34;:\&#34;IE 8.0\&#34;,\&#34;value\&#34;:5.74},{\&#34;name\&#34;:\&#34;2345\&#34;,\&#34;value\&#34;:5.68},{\&#34;name\&#34;:\&#34;搜狗高速\&#34;,\&#34;value\&#34;:4.74},{\&#34;name\&#34;:\&#34;Firefox\&#34;,\&#34;value\&#34;:2.54},{\&#34;name\&#34;:\&#34;Safari\&#34;,\&#34;value\&#34;:2.48},{\&#34;name\&#34;:\&#34;其他\&#34;,\&#34;value\&#34;:12.59}],\&#34;itemStyle\&#34;:{\&#34;emphasis\&#34;:{\&#34;shadowBlur\&#34;:10,\&#34;shadowOffsetX\&#34;:0,\&#34;shadowColor\&#34;:\&#34;rgba(0, 0, 0, 0.5)\&#34;}}}]}\n&#34;) myChart.setOption(option);  </description>
+    </item>
+    
+    <item>
+      <title>Network笔记整理 - 网络协议与网络分层</title>
+      <link>https://alili.tech/archive/ef96a5b6/</link>
+      <pubDate>Thu, 30 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ef96a5b6/</guid>
+      <description>《圣经》中有一个通天塔的故事,上帝为了阻止人类联合起来，就让人类说不同的语言。人类没法儿沟通，达不成“协议”，通天塔的计划就失败了。
+千年之后,一群工程师为了解决这一问题,制定了各种协议与标准,让各种设备可以通过协议通信,进而通过互联网实现了让世界互联.
+就像我们现在写的代码,用着通用的程序语言,世界也就随之打通了.我们的计算机语言也算是一种协议.
+想要让世界互联,让计算机们都联合起来,就必须要用到网络协议让他们相互协作,来完成共同的目标.
+协议三要素 (1) 语义。每一段内容需要代表某种意义 (2) 语法。每一段内容符合一定规则的格式, (3) 时序。每一段任务的执行顺序.
+网络分层 网络分层就是将网络节点所要完成的数据的发送或转发、打包或拆包，控制信息的加载或拆出等工作，分别由不同的硬件和软件模块去完成。
+简单的来说一个完整的HTTP请求,途中需要经过数次传送,期间需要不通的都软件与硬件模块去完成相应的工作. 我们对相应的阶段的不通特性做出来相应的分类.每种网络分层,都有相应的协议标准做数据传送.
+就像是一家公司,不通层级的人会用着不通的沟通方式来打交道.网络也大概如此.
+我们常用的网络协议有哪些? 我们的网络在通讯过程中,要通过哪些设备,哪些协议才能做到一次完整的通讯?
+网络层次可划分为五层因特网协议栈和七层因特网协议栈
+五层模型 因特网协议栈共有五层：应用层、传输层、网络层、链路层和物理层。不同于OSI七层模型这也是实际使用中使用的分层方式。 （1）应用层 支持网络应用，应用协议仅仅是网络应用的一个组成部分，运行在不同主机上的进程则使用应用层协议进行通信。 （2）传输层 负责为信源和信宿提供应用程序进程间的数据传输服务，这一层上主要定义了两个传输协议，传输控制协议即TCP和用户数据报协议UDP。 （3）网络层 负责将数据报独立地从信源发送到信宿，主要解决路由选择、拥塞控制和网络互联等问题。 （4）数据链路层 负责将IP数据报封装成合适在物理网络上传输的帧格式并传输，或将从物理网络接收到的帧解封，取出IP数据报交给网络层。 （5）物理层 负责将比特流在结点间传输，即负责物理传输。该层的协议既与链路有关也与传输介质有关
+五层模型对应的协议 物理层：以太网 · 调制解调器 · 电力线通信(PLC) · SONET/SDH · G.709 · 光导纤维 · 同轴电缆 · 双绞线等
+数据链路层：Wi-Fi(IEEE 802.11) · WiMAX(IEEE 802.16) ·ATM · DTM · 令牌环 · 以太网 ·FDDI · 帧中继 · GPRS · EVDO ·HSPA · HDLC · PPP · L2TP ·PPTP · ISDN·STP 等</description>
+    </item>
+    
+    <item>
+      <title>Linux -  Centos 时区设置</title>
+      <link>https://alili.tech/archive/3f6742b1/</link>
+      <pubDate>Mon, 30 Jul 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3f6742b1/</guid>
+      <description> timedatectl 命令 查看当前时区状态 $ timedatectl status Local time: Fri 2018-08-31 13:42:42 CST Universal time: Fri 2018-08-31 05:42:42 UTC RTC time: n/a Time zone: Asia/Shanghai (CST, +0800) NTP enabled: n/a NTP synchronized: yes RTC in local TZ: no DST active: n/a  设置时区为上海 $ timedatectl set-timezone Asia/Shanghai # 设置系统时区为上海  其他操作 $ timedatectl list-timezones # 列出所有时区 $ timedatectl set-local-rtc 1 # 将硬件时钟调整为与本地时钟一致, 0 为设置为 UTC 时间  </description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 在Egg中使用MondoDB</title>
+      <link>https://alili.tech/archive/c165a1d9/</link>
+      <pubDate>Fri, 18 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/c165a1d9/</guid>
+      <description>MongoDB官方有提供node操作数据库的 driver 及 API : node-mongodb-native
+在egg社区也有基于该插件二次封装的egg插件 egg-mongo-native
+对一些方法做了一些二次封装,也可以调用原版的方法.
+配置 官方文档也有相关的配置说明,但是我在实际使用中碰到了一些问题. 下面我给出正确的配置方法,供大家使用.其他相关知识请参照该插件都官方文档.
+// {app_root}/config/config.default.js export default (appInfo) =&amp;gt; { const config = {}; config.mongo = { client: { host: &#39;127.0.0.1&#39;, port: &#39;27017&#39;, name: &#39;dandelion&#39; }, } return config; };  开启插件 // config/plugin.js const plugin = { mongo :{ enable: true, package: &#39;egg-mongo-native&#39;, } };  要跟以上配置一样,才能正确使用该插件.
+其他复杂配置请参照该插件的官方文档. egg-mongo-native</description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 文档的基本操作 (二)</title>
+      <link>https://alili.tech/archive/311875a2/</link>
+      <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/311875a2/</guid>
+      <description>文档更新  语法: update(, , )
+ #更新rank字段 &amp;gt; db.posts.update({&amp;quot;title&amp;quot;:&amp;quot;怪物猎人世界评测&amp;quot;}, {$set: {&amp;quot;rank&amp;quot;: 10} }); # 更新整条数据为:{&amp;quot;rank&amp;quot;: 99} &amp;gt; db.posts.update({&amp;quot;title&amp;quot;:&amp;quot;怪物猎人世界评测&amp;quot;}, {&amp;quot;rank&amp;quot;: 99}); # 更新多条记录multi: true,如果为false,则是更新查询到的第一条记录 &amp;gt; db.posts.update({&amp;quot;tag&amp;quot;:&amp;quot;it&amp;quot;}, {$set: {&amp;quot;rank&amp;quot;: 60}}, {multi: true});  操作文档字段的函数  $inc:递加 $mul:相乘 $rename:改名 $set:新增or修改 $unset:字段删除  # 字段值递增,结果为: 字段值 + 1 &amp;gt; db.posts.update({title:&amp;quot;怪物猎人世界评测&amp;quot;}, {$inc: {rank: 1}}); # 字段值相乘操作,结果为: 字段值 * 2 &amp;gt; db.posts.update({title:&amp;quot;怪物猎人世界评测&amp;quot;}, {$mul: {rank: 2}}); # 字段重命名 &amp;gt; db.posts.update({title:&amp;quot;怪物猎人世界评测&amp;quot;}, {$rename: {&amp;quot;rank&amp;quot;: &amp;quot;score&amp;quot;}}); # 设置或者添加字段 &amp;gt; db.</description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 文档的基本操作 (一)</title>
+      <link>https://alili.tech/archive/9e29eec0/</link>
+      <pubDate>Sat, 12 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9e29eec0/</guid>
+      <description>文档增删 # 创建集合 &amp;gt; db.createCollection(&amp;quot;posts&amp;quot;); # 插入一条数据 &amp;gt; db.posts.insert( ... { ... title: &amp;quot;我的第一篇博客&amp;quot;, ... content: &amp;quot;已经开始写博客了，太激动了。&amp;quot; ... } ... ); # 查询数据 &amp;gt; db.posts.find(); # 插入另一条数据 &amp;gt; db.posts.insert( ... { ... title: &amp;quot;我的第二篇博客&amp;quot;, ... content: &amp;quot;写点什么好呢？&amp;quot;, ... tag: [&amp;quot;未分类&amp;quot;] ... } ... ); # 使用js for 来循环插入数据 &amp;gt; for(var i = 3; i &amp;lt;=10; i++ ) { ... db.posts.insert({ ... title: &amp;quot;我的第&amp;quot; + i + &amp;quot;篇博客&amp;quot; ... }); .</description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 数据库与集合的基本操作</title>
+      <link>https://alili.tech/archive/3a26a4b/</link>
+      <pubDate>Fri, 11 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3a26a4b/</guid>
+      <description> 数据库基本操作 # 进入命令行 $ mongo #帮助 &amp;gt; help #退出 &amp;gt; exit #显示所有数据库 &amp;gt; show dbs; #进入或者创建集合 &amp;gt; use aliliblog; #查看当前数据库状态 &amp;gt; db.stats(); # 删除数据库 &amp;gt; db.dropDatabase();  操作集合（Collection） # 查看集合 &amp;gt; show collections; # 创建集合 &amp;gt; db.createCollection(&amp;quot;users&amp;quot;); # 集合重命名 &amp;gt; db.users.renameCollection(&amp;quot;staff&amp;quot;); // users -&amp;gt; staff # 集合删除 &amp;gt; db.staff.drop();  </description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 基本概念与其他数据库对比</title>
+      <link>https://alili.tech/archive/1f77f611/</link>
+      <pubDate>Thu, 10 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/1f77f611/</guid>
+      <description> 基本概念 NoSql 在NoSql的数据库中，操作数据都是通过指令或程序语言完成的。
+在MongoDB中使用过Javascript和JSON数据结构，来操作和管理数据的。
+MongoDB数据库与关系型数据库对比    MongoDB 关系型数据库     数据库（Database) 数据库（Database）   集合（Collection） 数据表（Table）   文档（Document） 记录（Record）    MongoDB与RDBMS对应的术语    MongoDB RDBMS     数据库 数据库   集合 表格   文档 行   字段 列   嵌入文档 表联合   主键 (MongoDB 提供了 key 为 _id ) 主键    MongoDB 数据类型    数据类型 描述     String 字符串。存储数据常用的数据类型。在 MongoDB 中，UTF-8 编码的字符串才是合法的。   Integer 整型数值。用于存储数值。根据你所采用的服务器，可分为 32 位或 64 位。   Boolean 布尔值。用于存储布尔值（真/假）。   Double 双精度浮点值。用于存储浮点值。   Min/Max keys 将一个值与 BSON（二进制的 JSON）元素的最低值和最高值相对比。   Array 用于将数组或列表或多个值存储为一个键。   Timestamp 时间戳。记录文档修改或添加的具体时间。   Object 用于内嵌文档。   Null 用于创建空值。   Symbol 符号。该数据类型基本上等同于字符串类型，但不同的是，它一般用于采用特殊符号类型的语言。   Date 日期时间。用 UNIX 时间格式来存储当前日期或时间。你可以指定自己的日期时间：创建 Date 对象，传入年月日信息。   Object ID 对象 ID。用于创建文档的 ID。   Binary Data 二进制数据。用于存储二进制数据。   Code 代码类型。用于在文档中存储 JavaScript 代码。   Regular expression 正则表达式类型。用于存储正则表达式。    </description>
+    </item>
+    
+    <item>
+      <title>MongoDB - 安装与启动</title>
+      <link>https://alili.tech/archive/f82d8042/</link>
+      <pubDate>Wed, 09 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/f82d8042/</guid>
+      <description>什么是MongoDB？ MongoDB是一个面向文档的免费数据库，多用于数据采集和分散处理(Map/Reduce)，特别是在大数据处理方面比较擅长。
+MongoDB 是一个基于分布式文件存储的数据库。由 C++ 语言编写。旨在为 WEB 应用提供可扩展的高性能数据存储解决方案。
+MongoDB 是一个介于关系数据库和非关系数据库之间的产品，是非关系数据库当中功能最丰富，最像关系数据库的。
+MAC OS安装与启动 安装 最简单的是通过 brew 安装
+brew update # 就这样mac上就安装好了 brew install mongodb # 如果你需要最新的开发版本 brew install mongodb --devel  启动 #新建默认数据文件夹 mkdir -p /data/db # 直接启动 mongod # 指定路径启动 mongod --dbpath &amp;lt;path to data directory&amp;gt; # 连接默认端口数据库 mongo #指定端口连接数据库 mongo --host 127.0.0.1:27017  centOS安装与启动 安装 新建一个文件 /etc/yum.repos.d/mongodb-org-4.0.repo
+[mongodb-org-4.0] name=MongoDB Repository baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/ gpgcheck=1 enabled=1 gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc  通过yum安装数据库
+# 就这么简单就安装成功了 sudo yum install -y mongodb-org  启动 启动</description>
+    </item>
+    
+    <item>
+      <title>以太坊开发之搭建宠物商店</title>
+      <link>https://alili.tech/archive/b75b18ec/</link>
+      <pubDate>Sat, 21 Apr 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b75b18ec/</guid>
+      <description>truffle的宠物商店是一个了解以太坊开发的一个很不错的例子. 跟着官方提供的demo与教程,可以完整的感受一下整个流程的开发.
+Ganache 为了环境需要,并且快速的在本地搭建一个私有链环境. truffle推出了一个可视化私有链客户端: Ganache下载地址 下载之后运行,你会看到这样一个界面: 初始化你的项目 首先我们新建一个目录,并且初始化一下项目
+$ mkdir pet-shop $ cd pet-shop $ truffle unbox pet-shop  项目目录结构 这里只列出了重要的目录与文件
+├── bs-config.json ├── contracts //合约目录 │ └── Migrations.sol //合约文件 ├── migrations // 部署脚本 │ └── 1_initial_migration.js ├── package-lock.json ├── package.json ├── src // 前端代码目录 ├── test // 测试代码目录 └── truffle.js // truffle配置文件  编写智能合约 在contracts/目录中,创建一个Adoption.sol文件 文件内容:
+pragma solidity ^0.4.17; contract Adoption { address[16] public adopters; // 声明一个地址变量,用于保存领养者地址 // 领养宠物 function adopt(uint petId) public returns (uint) { require(petId &amp;gt;= 0 &amp;amp;&amp;amp; petId &amp;lt;= 15); // 确保宠物id正确,为0到15之间, // 如果不符合条件就会回滚 //msg.</description>
+    </item>
+    
+    <item>
+      <title>以太坊开发之Solidity初学者的编辑器 -- remix-ide</title>
+      <link>https://alili.tech/archive/ecce3d6/</link>
+      <pubDate>Fri, 20 Apr 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ecce3d6/</guid>
+      <description>在以太坊应用的开发中智能合约的开发是避不开的. 就目前来说,我发现的remix-ide是对新人最有好的开发工具了. 不需要其他任何的环境,就可以直接部署调试. 如果我发现了更加友好的,我会在以后的博客里推荐.
+安装 remix就是一个普通的npm包
+$ npm i remix-ide -g  启动 $ remix-ide  默认会启动本地8080端口,打开浏览器 http://localhost:8080
+使用  首先我们要勾选自动编译   2. 切换到 Run ,环境选择 javascript VM 部署你的程序 点击create按钮,就可以部署你的智能合约了. 如下图,便是部署了智能合约的样子,因为每次部署都会消耗掉相应的余额. 所以这个用户的余额从刚才的 100以太币变成了现在的 99.999999999... 调试你的程序 部署完成之后,我们发现下面出现了一个有函数名称的按钮与输入框. 输入框内可填写该函数的参数.点击一下函数名,便可执行该函数了. 执行结果,会在中间下面的控制台显示. 点击一下控制台信息的detail按钮,便可看到函数详细的输出信息</description>
+    </item>
+    
+    <item>
+      <title>以太坊开发之一切从脚手架truffle开始</title>
+      <link>https://alili.tech/archive/bc28cb6c/</link>
+      <pubDate>Thu, 19 Apr 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/bc28cb6c/</guid>
+      <description>这个礼拜开始学习区块链开发,为了公司区块链项目开始之前有一定的知识储备. 在博客做一下知识复盘.
+truffle是什么 Truffle是针对基于以太坊的Solidity语言的一套开发框架。本身是基于Javascript实现的。 虽然是使用我们熟悉的Javascript实现, 但是truffle主要还只是一个编译与发布智能合约的一个工具(当然还有其他的功能).
+Solidity是什么 在区块链应用的开发中,Solidity语言你或许大致的可以理解为编写后台的一种语言. 在专业术语里,这种后台代码叫做 智能合约
+truffle的主要作用 Truffle在区块链应用的开发中,主要是提供两个重要的功能. 1. 编译智能合约 2. 发布智能合约
+安装 跟普通的npm包一样,用npm直接安装
+# 全局安装truffle $ npm i truffle -g  初始化你的项目 # 我们新建一个目录 $ mkdir myproject $ cd myproject #初始化 $ truffle init # 执行命令后 Downloading... Unpacking... Setting up... Unbox successful. Sweet! Commands: # truffle的其他操作 编译,发布,测试 Compile: truffle compile Migrate: truffle migrate Test contracts: truffle test  完成之后你会看到以下目录
+ contract/ - 智能合约Solidity代码 migrations/ - 智能合约发布的脚本 test/ - 测试文件 truffle.</description>
+    </item>
+    
+    <item>
+      <title>使用verdaccio搭建更加简单的私有npm服务器</title>
+      <link>https://alili.tech/archive/9713e794/</link>
+      <pubDate>Tue, 10 Apr 2018 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9713e794/</guid>
+      <description>cnpm.org这种私有npm服务器搭建已经很简单了, 但是相对于verdaccio的简单那是完全没有办法比的. 因为verdaccio实在是太简单了.
+介绍 verdaccio是一个轻量级的私有NPM的Registry（从 Sinopia fork过来的，sinopia最后一次更新是在几年前了）。最开始是打算使用cnpmjs这个来搭建私有的npm仓库但是搭建完成之后存在一些问题，所以使用了Sinopia;
+接下来我将简单介绍一下 verdaccio的使用.
+在你的服务器安装verdaccio $ npm i verdaccio -g  启动 #直接输入 verdaccio 命令 $ verdaccio // 如果启动成功会显示以下信息 Verdaccio doesn‘t need superuser privileges. Don‘t run it und warn --- config file - /root/.config/verdaccio/config.yaml warn --- http address - http://localhost:4873/ - verdaccio/  我们也可以用pm2启动 (也是我选择使用的方法)
+$ pm2 start verdaccio  配置 系统默认的配置文件在 /root/.config/verdaccio/config.yaml 下面是我现在的配置,大家可以简单的参考一下. 基本上没有改什么.
+# # This is the default config file. It allows all users to do anything, # so don&#39;t use it on production systems.</description>
+    </item>
+    
+    <item>
+      <title>Git push卡住解决办法</title>
+      <link>https://alili.tech/archive/629795fd/</link>
+      <pubDate>Mon, 09 Apr 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/629795fd/</guid>
+      <description>博客的每天英语是直接爬的扇贝英语,为了不直接请求代理接口(会相对比较慢). 所以每天我的程序每天会生成相应的数据文件,前端直接ajax获取就好了. 博客内容也会每天自动发布,达到每天更新名言名句的效果. 好久没管,发现很多git提交的内容没有push.手动直接push之后发现有800多个修改地方没有push.
+手动push的时候直接卡住了. 就像这样:
+[master 9447645] 1 file changed, 1 insertion(+) Counting objects: 20, done. Compressing objects: 100% (876/876), done. Writing objects: 100% (876/876)  网上找了个方法,解决了这个问题: 添加sendpack.sideband属性并置为false
+# 全局的： git config –global sendpack.sideband false # 仓库的： git config –local sendpack.sideband false  我只在我的本地仓库设置一下,然后再执行 git push就成功了</description>
+    </item>
+    
+    <item>
+      <title>Linux -  SSH连接远程服务器直接执行command时PATH不全解决方案</title>
+      <link>https://alili.tech/archive/a5e195cc/</link>
+      <pubDate>Thu, 15 Mar 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/a5e195cc/</guid>
+      <description>non-interactive mode下PATH不全 ssh username@desktop.domain &amp;lsquo;command&amp;rsquo;这种是典型的non-interactive shell，PATH不全.
+原因 Linux系统中一种常用的判断是否是交互shell的方式就是通过PS1变量，虽然还有其他的方式，不过现在.bashrc中是通过PS1来判断是否为interactive mode。
+# .bashrc文件 # If not running interactively, don&#39;t do anything [ -z &amp;quot;PS1&amp;quot; ] &amp;amp;&amp;amp; return  解决方案 将必要的export PATH的声明，全部移到[ -z &amp;ldquo;PS1&amp;rdquo; ] &amp;amp;&amp;amp; return 之前。保证在non-interactive mode下，PATH的设置也都会生效。</description>
+    </item>
+    
+    <item>
+      <title>Centos7环境下启动puppeteer失败解决办法</title>
+      <link>https://alili.tech/archive/e550825/</link>
+      <pubDate>Sun, 25 Feb 2018 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/e550825/</guid>
+      <description>小贴士: 在centos6环境下,是不能启动puppeteer的,在centos6下,很多puppeteer依赖库是不存在的.所以如果你想在centos6上运行puppeteer,建议还是放弃,把时间花在其他地方比较值得.
+ 缺少依赖 在新的centos7上运行puppeteer往往会运行失败,很多时候会报这样的错:
+...node_modules/puppeteer/.local-chromium/linux-496140/chrome-linux/chrome: error while loading shared libraries: libpangocairo-1.0.so.0: cannot open shared object file: No such file or directory  这样的错表示,缺少依赖.
+下面列出,你的系统可能需要安装的依赖库,使用yum安装
+#字体 yum install ipa-gothic-fonts xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc -y #依赖库 yum install pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXtst.x86_64 cups-libs.x86_64 libXScrnSaver.x86_64 libXrandr.x86_64 GConf2.x86_64 alsa-lib.x86_64 atk.x86_64 gtk3.x86_64 -y  禁用沙箱模式 在Linux环境下,往往还会出现以下错误:
+https://github.com/GoogleChrome/puppeteer/issues/290
+(node:30559) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 1): Error: Failed to connect to chrome!</description>
+    </item>
+    
+    <item>
+      <title>Linux - vim vi学习笔记</title>
+      <link>https://alili.tech/archive/7f7747d0/</link>
+      <pubDate>Sat, 17 Feb 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7f7747d0/</guid>
+      <description>很多时候在mac也好linux也好,因为经常要使用到,但是操作与其他的编辑器差别又很大,所以专门学习一下,在使用的时候也不至于非常多迷惑.在学习中要多练多用才会熟练于心.
+vim/vi 的三种模式  命令模式（Command mode） 输入模式（Insert mode） 底线命令模式（Last line mode）  命令模式（Command mode） 当我们使用vim打开一个文件的时候,会进入命令模式.在命令模式下并不能输入编辑文本. 在命令模式下,可以输入以下切换到其他模式
+切换到输入模式 i  想要会到命令模式需要按一下 esc 按键.
+切换到底线命令模式 :  想要会到命令模式需要按一下 esc 按键.
+具体操作 光标的移动 光标的移动我们可以使用普通的方向键,也可以有vi独有的方式
+   按键 行为     h 或 向左箭头键(←) 光标向左移动一个字符   j 或 向下箭头键(↓) 光标向下移动一个字符   k 或 向上箭头键(↑) 光标向上移动一个字符   l 或 向右箭头键(→) 光标向右移动一个字符    各种输入模式的切换    按键 行为     i, I 进入输入模式(Insert mode)：为『从目前光标所在处输入』， I 为『在目前所在行的第一个非空格符处开始输入』   a A 为『从目前光标所在的下一个字符处开始输入』， A 为『从光标所在行的最后一个字符处开始输入』。(常用)   o, O 进入输入模式(Insert mode) 这是英文字母 o 的大小写。o 为『在目前光标所在的下一行处输入新的一行』； O 为在目前光标所在处的上一行输入新的一行！(常用)   r, R 取代模式: r 只会取代光标所在的那一个字符一次；R会一直取代光标所在的文字，直到按下 ESC 为止；(常用)   [Esc] 退出编辑模式，回到一般模式中(常用)    复制与删除    按键 行为     x, X 在一行字当中，x 为向后删除一个字符 (相当于 [del] 按键)， X 为向前删除一个字符(相当[backspace] 亦即是退格键) (常用)   nx n 为数字，连续向后删除 n 个字符。举例来说，我要连续删除 10 个字符， 『10x』。   dd 删除游标所在的那一整行(常用)   ndd n 为数字。删除光标所在的向下 n 行，例如 20dd 则是删除 20 行 (常用)   d1G 删除光标所在到第一行的所有数据   dG 删除光标所在到最后一行的所有数据   d$ 删除游标所在处，到该行的最后一个字符   d0 那个是数字的 0 ，删除游标所在处，到该行的最前面一个字符   yy 复制游标所在的那一行(常用)   nyy n 为数字。复制光标所在的向下 n 行，例如 20yy 则是复制 20 行(常用)   y1G 复制游标所在行到第一行的所有数据   yG 复制游标所在行到最后一行的所有数据   y0 复制光标所在的那个字符到该行行首的所有数据   y$ 复制光标所在的那个字符到该行行尾的所有数据   p, P p 为将已复制的数据在光标下一行贴上，P 则为贴在游标上一行！ 举例来说，我目前光标在第 20 行，且已经复制了 10 行数据。则按下 p 后， 那 10 行数据会贴在原本的 20 行之后，亦即由 21 行开始贴。但如果是按下 P 呢？ 那么原本的第 20 行会被推到变成 30 行。 (常用)   J 将光标所在行与下一行的数据结合成同一行   c 重复删除多个数据，例如向下删除 10 行，[ 10cj ]   u 复原前一个动作。(常用)   [Ctrl]+r 重做上一个动作。(常用)   .</description>
+    </item>
+    
+    <item>
+      <title>Linux - 安装nginx步骤</title>
+      <link>https://alili.tech/archive/d150fc3c/</link>
+      <pubDate>Tue, 16 Jan 2018 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/d150fc3c/</guid>
+      <description>安装nginx相关的依赖 yum install gcc yum install pcre-devel yum install zlib zlib-devel yum install openssl openssl-devel  当然你也可以一起安装
+yum -y install gcc zlib zlib-devel pcre-devel openssl openssl-devel  下载nginx的tar压缩包 进入网页 http://nginx.org/download/
+选择你需要的版本:
+# 进入local文件夹 cd /usr/local # 我选择了一个相对较新的版本,下载到当前目录 wget http://nginx.org/download/nginx-1.13.9.tar.gz # 解压 tar -xvf nginx-1.13.9.tar.gz # 重命名 mv nginx-1.13.9.tar.gz nginx #进入nginx目录 cd nginx #执行以下命令 ./configure #编译 make  进行以上步骤之后,你的nginx就已经安装完毕了
+nginx常用命令 以下操作全都是在nginx目录下进行
+启动: ./sbin/nginx  停止: ./sbin/nginx -s stop #或者 ./sbin/nginx -s quit  重启: .</description>
+    </item>
+    
+    <item>
+      <title>一个没有界面的Chrome浏览器：puppeteer</title>
+      <link>https://alili.tech/archive/b9985e69/</link>
+      <pubDate>Thu, 21 Dec 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b9985e69/</guid>
+      <description>Puppeteer介绍 Puppeteer是一个node库，提供了一组用来操纵Chrome的API。 相对PhantomJS来说，他可以直接在你的node项目里面直接调用Chrome的API。 以后很多的自动化测试，爬虫都可以基于Puppeteer来做。
+安装 npm install puppeteer  使用 截屏 const puppeteer = require(&#39;puppeteer&#39;); (async () =&amp;gt; { const browser = await puppeteer.launch(); const page = await browser.newPage(); await page.goto(&#39;https://example.com&#39;); await page.screenshot({path: &#39;example.png&#39;}); await browser.close(); })();  保存页面为PDF const puppeteer = require(&#39;puppeteer&#39;); (async () =&amp;gt; { const browser = await puppeteer.launch(); const page = await browser.newPage(); await page.goto(&#39;https://news.ycombinator.com&#39;, {waitUntil: &#39;networkidle2&#39;}); await page.pdf({path: &#39;hn.pdf&#39;, format: &#39;A4&#39;}); await browser.close(); })();  Puppeteer 还提供了很多的Chrome API [https://github.</description>
+    </item>
+    
+    <item>
+      <title>基于shipit-deploy实现的多服务器自动化部署方案</title>
+      <link>https://alili.tech/archive/fba46182/</link>
+      <pubDate>Sun, 17 Dec 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/fba46182/</guid>
+      <description>为什么要自动化部署，我这里就不多赘述了。
+基于shipit-deploy的自动化部署，可以实现以下效果
+ 一键部署多台服务器。 一键回滚多台服务器。 本地操作，不需要登录服务器。 方便定制，方便扩展，实现自动化。  使用 1.下载安装 npm install --save-dev shipit-cli npm install --save-dev shipit-deploy  2.与服务器建立信任关系 ssh-copy-id USER@REMOTE_HOST  3.配置 module.exports = function (shipit) { require(&#39;shipit-deploy&#39;)(shipit); require(&#39;shipit-pm2&#39;)(shipit); require(&#39;shipit-cnpmjs&#39;)(shipit); shipit.initConfig({ default: { workspace: &#39;/tmp/github-monitor&#39;, deployTo: &#39;/tmp/deploy_to&#39;, //服务器的目标路径 repositoryUrl: &#39;https://github.com/user/repo.git&#39;, //git仓库地址 ignores: [&#39;.git&#39;, &#39;node_modules&#39;], //排除的文件 keepReleases: 2, //发布保留的版本数量 deleteOnRollback: false, key: &#39;/path/to/key&#39;, shallowClone: true, cnpm: { remote: false } }, dev: { //开发服务器部署 servers: [&#39;user@devServer1&#39;, &#39;user@devServer1&#39;], branch: &#39;dev&#39; //需要发布的git分支, pm2: { json: &#39;pm2-dev-app.</description>
+    </item>
+    
+    <item>
+      <title>Linux -  使用ssh-copy-id命令实现ssh Linux免密码登陆</title>
+      <link>https://alili.tech/archive/5f4cf684/</link>
+      <pubDate>Sat, 16 Dec 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/5f4cf684/</guid>
+      <description>1. 生成公钥和私钥 ssh-keygen -t rsa  按照提示输入完后，会在~/.ssh目录下生成id_rsa和id_rsa.pub这两个文件
+2.与服务器建立联系 ssh-copy-id root@192.168.0.100 //示例ip  接下来会要求输入连接密码，验证成功后
+3.无密码登陆服务器 尝试以下命令，看是不是直接登陆成功了：
+ssh root@192.168.0.100  就是这么简单</description>
+    </item>
+    
+    <item>
+      <title>开启Express，Egg.js，Koa.js 的Gzip模式</title>
+      <link>https://alili.tech/archive/a8ce80b/</link>
+      <pubDate>Wed, 13 Dec 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/a8ce80b/</guid>
+      <description>为了缩小接口与静态文件的下载体积，在服务器资源可观的情况下我们可以开启Gzip。
+Express Express 4.0以下版本
+var express = require(&#39;express&#39;); var app = express(); app.use(express.compress()); //主要是这句  Express 4.0以上版本(包含4.0)
+var compression = require(&#39;compression&#39;); var express = require(&#39;express&#39;); var app = express(); app.use(compression());  Egg.js // app/middleware/compress.js // koa-compress 暴露的接口(`(options) =&amp;gt; middleware`)和框架对中间件要求一致 module.exports = require(&#39;koa-compress&#39;)  // config/config.default.js module.exports = { middleware: [ &#39;compress&#39; ], compress: { threshold: 2048, }, };  Koa.js const koa = require(&#39;koa&#39;); const compress = require(&#39;koa-compress&#39;); const app = koa(); const options = { threshold: 2048 }; app.</description>
+    </item>
+    
+    <item>
+      <title>Apache,Nginx,Express,Egg.js 支持前端HTML5 History 模式</title>
+      <link>https://alili.tech/archive/6eff5ac9/</link>
+      <pubDate>Sat, 02 Dec 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/6eff5ac9/</guid>
+      <description>当你使用 history 模式时，URL 就像正常的 url，例如 http://xxx.com/user/id。
+想要完美支持这种模式，还需要后台配置支持。当应用是个单页客户端应用，如果后台没有正确的配置，当用户在浏览器直接访问 http://xxx.com/user/id 就会返回 404。
+后端支持案例：
+Apache &amp;lt;IfModule mod_rewrite.c&amp;gt; RewriteEngine On RewriteBase / RewriteRule ^index\.html$ - [L] RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d RewriteRule . /index.html [L] &amp;lt;/IfModule&amp;gt;  nginx location / { try_files $uri $uri/ /index.html; }  Node.js (Express) 如果是Express 可以使用connect-history-api-fallback [https://github.com/bripkens/connect-history-api-fallback]()
+Egg.js // app/middleware/history_fallback.js module.exports = () =&amp;gt; { return async function historyFallback(ctx, next) { await next(); if (ctx.status === 404 &amp;amp;&amp;amp; !</description>
+    </item>
+    
+    <item>
+      <title>Egg.js 如何支持单页面应用</title>
+      <link>https://alili.tech/archive/524de824/</link>
+      <pubDate>Fri, 01 Dec 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/524de824/</guid>
+      <description>在config/plugin.js 启用ejs //其他的模板引擎也行
+exports.ejs = { enable: true, package: &#39;egg-view-ejs&#39;, };  配置静态目录
+//config/config.{env}.js config.static = { prefix: &#39;/&#39;, dir: path.join(appInfo.baseDir, &#39;app/view/&#39;) }  模板配置 ``` javascript //config/config.{env}.js
+  config.view = { defaultExt: &amp;lsquo;.html&amp;rsquo;, mapping: { &amp;lsquo;.ejs&amp;rsquo;: &amp;lsquo;ejs&amp;rsquo;, &amp;lsquo;.html&amp;rsquo;: &amp;lsquo;ejs&amp;rsquo;, } }
+ 4. 配置根目录路由映射 ``` javascript // app/router.js module.exports = app =&amp;gt; { app.router.get(&#39;/&#39;, app.controller.home.index); }   配置路由相应的控制器 ``` javascript // app/controller/home.js  const { Controller } = require(&amp;lsquo;egg&amp;rsquo;); class HomeController extends Controller { async index() { const { ctx } = this; // render index.</description>
+    </item>
+    
+    <item>
+      <title>在自己搭建的cnpm发布公司私有代码</title>
+      <link>https://alili.tech/archive/7cb6734b/</link>
+      <pubDate>Sat, 25 Nov 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7cb6734b/</guid>
+      <description>配置  需要先将原先的 config/config.js 中添加一些配置属性：
+enablePrivate: false, // 任何人都可以发布包 admins: { admin: &#39;test@company.com&#39; // 管理员权限 }, scopes: [&#39;@company&#39;], // 私有包必须依附于 scope 下  重新启动 cnpm 进入cnpm目录
+npm stop // 停止服务 npm start //启动服务  3. 在 package.json 文件中加入代码：
+ &amp;quot;name&amp;quot;: &amp;quot;@company/testjs&amp;quot;, // 包名，之前必须加入 scope 名   npm登陆  npm login --registry=http://192.168.0.100:7001 // 注册之前的用户 Username: admin // 管理员名 Password: 1234 //你想要的密码   npm publish --registry=http://192.168.80.130:7001  发布成功
+安装刚刚发布的包  npm install @company/test -registry=http://192.</description>
+    </item>
+    
+    <item>
+      <title>在公司搭建私有的cnpm服务器</title>
+      <link>https://alili.tech/archive/eed8d24e/</link>
+      <pubDate>Fri, 24 Nov 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/eed8d24e/</guid>
+      <description>现在的js的项目越来越多。如果我们把代码开源。我们会把这些代码发布到npm。 但是npm是公共的，公司的代码毕竟不会公开在网上。 于是我们就有必要搭建一个自己的npm服务器。把公司私有的代码发布在自己公司的npm服务器上。 这样我们就可以即方便的下载我们想要的代码。也可以不把这些代码放在开源平台上面
+安装的基本步骤  在linu安装mysql npm install cnpm.org 下载cnpm.org的代码 配置好cnpm.org的数据库配置 npm start  在安装过程中，我们只有这简单的4步。不管哪里遇到各种各样的问题，都不会脱离这4个步骤。
+开始吧 在linux安装mysql 网上有很多相关教程，请自行搜索。如果有需要我会重新开一篇来讲述安装步骤。 我们假设这里我们创建了一个用户为：root 密码：root1234 1. 创建数据库
+CREATE DATABASE cnpmjs   建表：  在cnpm.org代码里，doc/db.sql文件里面有创建cnpm.org的相关表的sql语句
+mysql&amp;gt; use cnpmjs; mysql&amp;gt; source docs/db.sql  在代码里配置sql信息 在cnpm.org代码里的 config/config.js配置我们的数据库连接信息.
+找到以下mysqlServers相关代码,配置大致如下：
+mysqlServers: [ { host: &#39;localhost&#39;, port: 3306, user: &#39;root&#39;, password: &#39;root1234&#39;, // 这是我们刚刚创建的账户跟密码 } ],  安装cnpm.org 的相关js依赖（这是jser们再熟悉不过的了） 进入cnpm.org代码目录
+ npm install  ### 最后一步 当里的js依赖装好了之后，cnpm.org的数据库配置也配置好了以后。 再命令行里 运行一下命令：</description>
+    </item>
+    
+    <item>
+      <title>Visual Studio Code隐藏从ts生成的额外js与map文件</title>
+      <link>https://alili.tech/archive/b36fefc7/</link>
+      <pubDate>Wed, 22 Nov 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b36fefc7/</guid>
+      <description>打开【文件】&amp;gt;【首选项】&amp;gt;【工作区设置】，放入以下代码：
+// 将设置放入此文件中以覆盖默认值和用户设置。 { &amp;quot;files.exclude&amp;quot;: { // exclude .js and .js.map files, when in a TypeScript project &amp;quot;node_modules&amp;quot;: true, &amp;quot;**/*.js&amp;quot;: { &amp;quot;when&amp;quot;: &amp;quot;$(basename).ts&amp;quot;}, &amp;quot;**/*.js.map&amp;quot;: true } }  </description>
+    </item>
+    
+    <item>
+      <title>让Visual Studio Code按照ESLint规则格式化你的代码</title>
+      <link>https://alili.tech/archive/153fb3f5/</link>
+      <pubDate>Sun, 05 Nov 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/153fb3f5/</guid>
+      <description>项目加入ESLint之后,大家的代码是工整了许多. 但是因为刚刚不熟悉ESLint的规则,很多时候都在数进退多少空格,双引号还是单引号的删改切换.
+严重影响了开发效率与心情!!!! 严重影响了开发效率与心情!!!! 严重影响了开发效率与心情!!!!
+重要的事情说三遍!!!
+下面介绍一种利用Visual Studio Code ESLint插件,配置之后,可以自动格式化成ESLint规定的格式
+ 在Visual Studio Code 安装 ESLint插件 widnows 点击 文件&amp;gt;首选项&amp;gt;设置 / mac 点击Code&amp;gt;首选项 搜索 eslint.autoFixOnSave, 找到之后修改为 true  重启你的Visual Studio Code,当你打开代码文件的后,直接保存文件. 代码会自动格式化成ESLint规定的格式.大大的提高了开发效率,并且统一了代码规范
+下面分享一下我们项目里的一些ESLint规则
+{ rules: { // 具体规则 &#39;accessor-pairs&#39;: 2, // getter/setter成对出现 &#39;arrow-spacing&#39;: [1, { &#39;before&#39;: true, &#39;after&#39;: true }], // 箭头函数前后有空格 &#39;array-bracket-spacing&#39;: [1, &#39;never&#39;], // 数组内前后无空格 &#39;block-spacing&#39;: [1, &#39;always&#39;], // 单行{}前后有空格 &#39;brace-style&#39;: [2, &#39;1tbs&#39;, { &#39;allowSingleLine&#39;: true }], // {}换行，单行不用 &#39;camelcase&#39;: [2, { &#39;properties&#39;: &#39;never&#39; }], // 属性名可以不是驼峰 &#39;comma-dangle&#39;: [1, &#39;only-multiline&#39;], // 数组/对象最后一个必须有, &#39;comma-spacing&#39;: [1, { &#39;before&#39;: false, &#39;after&#39;: true }], // ,前有空格, 后无空格 &#39;comma-style&#39;: [2, &#39;last&#39;], // ,在最后，不能换行 &#39;constructor-super&#39;: 1, // super()在必须构造函数内 &#39;curly&#39;: [2, &#39;multi-line&#39;], // if/while等函数可以多行不带{} &#39;dot-location&#39;: [2, &#39;property&#39;], // .</description>
+    </item>
+    
+    <item>
+      <title>Redux先放一边,开启MobX的新玩法</title>
+      <link>https://alili.tech/archive/b3d50314/</link>
+      <pubDate>Sat, 04 Nov 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b3d50314/</guid>
+      <description>Mobx Mobx是一个简单的,高扩展的状态管理工具.Mobx与Redux一样是为了解决react管理状态的一种工具. 但是在写代码体验上,会好过Redux.
+安装 npm install mobx --save //配合React: npm install mobx-react --save  一个简单的计数器 import React, { Component } from &#39;react&#39; import ReactDOM from &#39;react-dom&#39; import { observer } from &#39;mobx-react&#39; import { observable, computed, action } from &#39;MobX&#39; class Store { @observable count = 0; @action add() { this.count ++ } minus() { this.count -- } } let countStore = new Store() @observer class CountComponent extends Component { render() { return ( &amp;lt;div&amp;gt; &amp;lt;h2&amp;gt;{ countStore.</description>
+    </item>
+    
+    <item>
+      <title>在你的React项目中使用Decorator 装饰器</title>
+      <link>https://alili.tech/archive/a280911b/</link>
+      <pubDate>Wed, 01 Nov 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/a280911b/</guid>
+      <description>使用装饰器  目前只支持Babel/Typescript两种预编译器
+ Babel: npm install babel-plugin-transform-decorators-legacy --save-dev  在你的 .babelrc配置文件中开启,没有 .babelrc文件的话,可以新建一个.
+{ &amp;quot;presets&amp;quot;: [ &amp;quot;es2015&amp;quot;, &amp;quot;stage-1&amp;quot; ], &amp;quot;plugins&amp;quot;: [&amp;quot;transform-decorators-legacy&amp;quot;] }  插件的顺序千万要注意,非常重要：transform-decorators-legacy 应该放在插件的第一个。
+当使用react native的时候，下面这个预设可以代替 transform-decorators-legacy
+{ &amp;quot;presets&amp;quot;: [&amp;quot;stage-2&amp;quot;, &amp;quot;react-native-stage-0/decorator-support&amp;quot;] }  在create-react-app中使用装饰器 npm run eject  安装相关插件:
+//针对react npm install babel-preset-stage-2 --save-dev npm install babel-preset-react-native-stage-0 --save-dev  根目录下创建.babelrc { &amp;ldquo;presets&amp;rdquo;: [&amp;ldquo;react-native-stage-0/decorator-support&amp;rdquo;] }
+TypeScript 如果你的项目已经开始使用TypeScript,那我们只需要在tsconfig.json文件中的 experimentalDecorators 设置为 true
+这样,我们就可以使用ES7新特性装饰器了
+在vscode 移除不支持decorator特性的语法警告提示 在项目根目录创建tsconfig.json
+{ &amp;quot;compilerOptions&amp;quot;: { &amp;quot;experimentalDecorators&amp;quot;: true, &amp;quot;allowJs&amp;quot;: true } }  重启你的vscode,你会发现语法警告没有了.</description>
+    </item>
+    
+    <item>
+      <title>Git系列之关于add命令的一些事</title>
+      <link>https://alili.tech/archive/638cc3cd/</link>
+      <pubDate>Sun, 10 Sep 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/638cc3cd/</guid>
+      <description> 基本用法 通常是通过git add 的形式把添加到索引库中，
+可以是文件也可以是目录:
+git add &amp;lt;path&amp;gt;  如果有很多改动,可以用以下命令来一次添加所有改变的文件:
+ git add -A .  将所有修改添加到暂存区,包括添加新文件和编辑过的文件不包括删除的文件:
+$ git add .  表示添加所有内容:
+git add -A  表示添加编辑或者删除的文件，不包括新添加的文件:
+git add -u  如果不小心执行了以下命令:
+git add * -f(force) //添加被忽略的文件。  可以吃一个后悔药:
+git reset HEAD  </description>
+    </item>
+    
+    <item>
+      <title>React系列之父组件如何传递Props给this.props.children</title>
+      <link>https://alili.tech/archive/7aed82f9/</link>
+      <pubDate>Fri, 08 Sep 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7aed82f9/</guid>
+      <description> 问题 React使用router之后,以下形式会经常出现.
+this.props.children  可是这样渲染出来的组件,父组件如何传递props给它呢?
+解决 我们可以这样传递porps给子组件:
+{ React.cloneElement(this.props.children,{A:xxx,B:xxx2,C:xxx3}) }  </description>
+    </item>
+    
+    <item>
+      <title>MySQL的安全模式</title>
+      <link>https://alili.tech/archive/49f93461/</link>
+      <pubDate>Sat, 26 Aug 2017 23:36:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/49f93461/</guid>
+      <description>今天delete一条数据的时候,出现了以下错误.
+You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column To disable safe mode, toggle the option in Preferences -&amp;gt; SQL Queries and reconnect.  因为MySql运行在safe-updates模式下.
+想要解除该模式,运行以下命令:
+SET SQL_SAFE_UPDATES = 0  为了安全，建议执行完操作后，再恢复成默认状态1</description>
+    </item>
+    
+    <item>
+      <title>MySQL的Access denied for user问题</title>
+      <link>https://alili.tech/archive/78cba2eb/</link>
+      <pubDate>Fri, 25 Aug 2017 23:36:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/78cba2eb/</guid>
+      <description>问题 在另一台服务器连接MySQL的时候,出现了 Access denied for user &amp;lsquo;root&amp;rsquo;@&amp;lsquo;xxx.xxx.xxx.xxx&amp;rsquo; (using password: YES) 的报错提示.
+这是数据库赋权的问题.
+解决办法 在MySQL服务器上使用root登录后，执行如下sql语句：
+mysql -u root -p  然后输入你的密码.
+然后执行以下命令:
+GRANT ALL PRIVILEGES ON *.* TO &#39;你的账户&#39;@&#39;%&#39; IDENTIFIED BY &#39;你的密码&#39; WITH GRANT OPTION;  执行成功后:
+FLUSH PRIVILEGES;  然后再尝试连接你的数据库,应该就可以了.</description>
+    </item>
+    
+    <item>
+      <title>利用Chrome DevTools调试Node.js</title>
+      <link>https://alili.tech/archive/bd292cd9/</link>
+      <pubDate>Tue, 08 Aug 2017 00:04:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/bd292cd9/</guid>
+      <description>前提  Node.js 6.3+； Chrome 55+;  配置Chrome (最新的版本已经不需要这一步);  输入url：chrome://flags/#enable-devtools-experiments 进入开发者实验室
+ 启用加亮的选项
+ 重启Chrome
+ 打开 DevTools Setting -&amp;gt; Experiments;
+ 连续按Shift 6次,显示隐藏的选项
+ 找到 Node debugging,并且勾上. (新版本已经没有这个选项,默认就是开启状态.所以chrome就不用配置了)
+  运行Nodejs 只要在命令语句 加上 &amp;ndash;inspect,后面跟上你想要执行的文件;
+node --inspect app.js  复制控制台输出的:
+chrome-devtools:// 协议地址
+ chrome-devtools://devtools/remote/serve_file/xxxxxxxxx
+ 粘贴到浏览器地址栏,你就可以使用Chrome的控制台调试你的node应用了.</description>
+    </item>
+    
+    <item>
+      <title>React系列之用create-react-native-app创建React Native应用</title>
+      <link>https://alili.tech/archive/bb62bab9/</link>
+      <pubDate>Sun, 30 Jul 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/bb62bab9/</guid>
+      <description>之前在介绍create-react-app的时候稍微提了一下create-react-native-app.
+这东西其实用起来还是蛮有意思的.这东西最大的好处就是如果你没有安装Xcode,Android Studio这些工具的时候,也是可以在电脑上调试React Native 应用的.
+ 这里说的电脑包括 Mac Windows Linux!!!!
+ create-react-native-app
+Create React Native App 安装 $ npm install -g create-react-native-app $ create-react-native-app my-app $ cd my-app/ $ npm start  安装 Expo 这个APP在你的iphone或者安卓手机上. npm start 之后,控制台会出现一个二维码.用这个Expo 扫描这个二维码,就可以马上在你的手机上直接进行远程调试了.那是相当的方便啊.但是速度还是相对桌面模拟器调试慢一点.
+Expo的桌面开发工具 Expo XDE Expo XDE
+我们不仅可以在控制里运行整个项目,用XDE也可以.并且支持使用模拟器直接在电脑里直接调试程序.速度不错,完全可以接受.
+只不过我Mac的模拟器在安装expo的时候,花了好长的一段时间.如果大家有遇到类似的情况一定要耐心的等一等.</description>
+    </item>
+    
+    <item>
+      <title>聊聊HTTP的MIME</title>
+      <link>https://alili.tech/archive/3b54e2d1/</link>
+      <pubDate>Wed, 26 Jul 2017 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3b54e2d1/</guid>
+      <description>MIME是什么? MIME(Multipurpose Internet Mail Extensions)多用途互联网邮件扩展类型;
+在最早的HTTP协议中,没有附加的数据类型信息.
+所有传送的数据都被客户程序解释为超文本标记语言HTML 文档，而为了支持多媒体数据类型，HTTP协议中就使用了附加在文档之前的MIME数据类型信息来标识数据类型。
+每个MIME类型由两部分组成，前面是数据的大类别，例如声音audio、图象image等，后面定义具体的种类。
+常见的MIME类型(通用型)：  超文本标记语言文本 .html text/html xml文档 .xml text/xml XHTML文档 .xhtml application/xhtml+xml 普通文本 .txt text/plain RTF文本 .rtf application/rtf PDF文档 .pdf application/pdf Microsoft Word文件 .word application/msword PNG图像 .png image/png GIF图形 .gif image/gif JPEG图形 .jpeg,.jpg image/jpeg au声音文件 .au audio/basic MIDI音乐文件 mid,.midi audio/midi,audio/x-midi RealAudio音乐文件 .ra, .ram audio/x-pn-realaudio MPEG文件 .mpg,.mpeg video/mpeg AVI文件 .avi video/x-msvideo GZIP文件 .gz application/x-gzip TAR文件 .tar application/x-tar 任意的二进制数据 application/octet-stream  用于WAP服务器的MIME类型有：  MRP文件（国内普遍的手机）.</description>
+    </item>
+    
+    <item>
+      <title>HTTP的URI格式说明</title>
+      <link>https://alili.tech/archive/84afbeeb/</link>
+      <pubDate>Tue, 25 Jul 2017 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/84afbeeb/</guid>
+      <description>下面是URI的各个组成部分
+ 权限 路径 ┌───────────────┴───────────────┐┌───┴────┐ abc://username:password@example.com:123/path/data?key=value&amp;amp;key2=value2#fragid1 └┬┘ └───────┬───────┘ └────┬────┘ └┬┘ └─────────┬─────────┘ └──┬──┘ 协议 用户信息 主机名 端口 查询参数 片段  </description>
+    </item>
+    
+    <item>
+      <title>让Webpack支持sftp上传文件</title>
+      <link>https://alili.tech/archive/5e4dd5b8/</link>
+      <pubDate>Tue, 18 Jul 2017 11:43:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/5e4dd5b8/</guid>
+      <description>今天介绍两个插件,可以让你的webpack支持上传文件到你的ftp服务器.
+sftp-webpack-plugin
+安装sftp-webpack-plugin npm install sftp-webpack-plugin --save-dev  使用 const SftpWebpackPlugin = require(&#39;sftp-webpack-plugin&#39;); var config = { plugins: [new SftpWebpackPlugin({ port: &#39;your port&#39;,//服务器端口 host: &#39;your host&#39;,//服务器地址 username: &#39;your username&#39;,//用户名 password: &#39;your password&#39;,//密码 from: &#39;you neeed upload file path &#39;,//你的本地路径 to: &#39;you want to destination&#39;//服务器上的路径 })] }  webpack-sftp-client webpack-sftp-client
+安装webpack-sftp-client npm install webpack-sftp-client --save-dev  使用 var WebpackSftpClient = require(&#39;webpack-sftp-client&#39;); var config = { plugins: [new WebpackSftpClient({ port: &#39;22&#39;,//服务器端口 host: &#39;exmaple.</description>
+    </item>
+    
+    <item>
+      <title>React系列之分享一个自适应高的iframe组件</title>
+      <link>https://alili.tech/archive/b4301d9b/</link>
+      <pubDate>Mon, 17 Jul 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b4301d9b/</guid>
+      <description>在网页里面先要嵌入iframe,总是得要解决iframe高度的问题.
+那我们在React下,该怎么做到呢?
+class FullheightIframe extends Component { constructor() { super(); this.state = { iFrameHeight: &amp;quot;0px&amp;quot; }; } render() { return ( &amp;lt;iframe style={ { width: &amp;quot;100%&amp;quot;, height: this.state.iFrameHeight, overflow: &amp;quot;visible&amp;quot; }} onLoad={() =&amp;gt; { const obj = ReactDOM.findDOMNode(this); this.setState({ iFrameHeight: obj.contentWindow.document.body.scrollHeight + &amp;quot;px&amp;quot; }); }} ref=&amp;quot;iframe&amp;quot; src={this.props.src} width=&amp;quot;100%&amp;quot; height={this.state.iFrameHeight} scrolling=&amp;quot;no&amp;quot; frameBorder=&amp;quot;0&amp;quot; /&amp;gt; ); } }  </description>
+    </item>
+    
+    <item>
+      <title>Macbook Pro蓝牙不可用问题</title>
+      <link>https://alili.tech/archive/a8e3f4c2/</link>
+      <pubDate>Sun, 16 Jul 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/a8e3f4c2/</guid>
+      <description>前两天早上去公司,电脑一开机.发现鼠标不能用了.
+乱鼓捣了一翻,原来电脑蓝牙变成了一个波浪线.显示蓝牙不可用.
+鼓捣了好久,电脑系统也升级到最新版本了.重启好几次,蓝牙还是不可用状态.
+百度了一下,网上也有类似的问题的解决办法.
+1.关机 2.同时按下shift+control+option+power,保持5秒 3.先按下power键，紧接着同时按下option+command+p+r, 等待mac发出4声Duang~的声音后松手，系统就会自动开机 4.蓝牙恢复正常  但是有网友试过之后,是成功的呀.
+我照着这方法,试了好几次,蓝牙还是不可用.但是在电脑的恢复模式,鼠标是可用的.说明蓝牙并没有坏.
+ 最后我把电脑所有连接usb的设备全部拔掉.重新再试了一次.
+ 奇迹发生了,蓝牙恢复正常了.如果有朋友遇到了类似情况,最好跟我一样把所有USB设备拔掉.然后照着上面方法试着弄一次.应该是可以解决问题的.</description>
+    </item>
+    
+    <item>
+      <title>发布基于nodejs的阿里云API签名生成工具 -- AliToSing</title>
+      <link>https://alili.tech/archive/dd233b37/</link>
+      <pubDate>Sun, 16 Jul 2017 00:04:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/dd233b37/</guid>
+      <description>基于nodejs的阿里云API签名生成工具
+Github AliToSign
+阿里云签名官方说明
+安装方法:
+npm install alitosign --save  使用方法:
+例子:添加域名
+const alitosign = require(&amp;quot;alitosign&amp;quot;); const querystring = require(&amp;quot;querystring&amp;quot;); const moment = require(&amp;quot;moment&amp;quot;); const http =require(&amp;quot;http&amp;quot;); //基本上调用接口都需要的公共参数 let originParams = { AccessKeyId: &amp;quot;xxxxxxx&amp;quot;, //AccessKeyId 获得方法请参照官方文档 Format: &amp;quot;JSON&amp;quot;, Version: &amp;quot;2015-01-09&amp;quot;, SignatureMethod: &amp;quot;HMAC-SHA1&amp;quot;, SignatureVersion: &amp;quot;1.0&amp;quot; } function AddDomain() { //复制一份公共参数 let params = Object.assign({},originParams); //在新的对象上添加你想调用的该接口必要参数, //每个接口都不一样,具体请查阅官方文档 params.Action = &amp;quot;AddDomain&amp;quot;; params.DomainName = &amp;quot;alili.tech&amp;quot;; params.GroupId = &amp;quot;2223&amp;quot;; //添加时间戳 params.Timestamp = moment.utc().format(); //要用格林威治时间; params.SignatureNonce = new Date().</description>
+    </item>
+    
+    <item>
+      <title>React系列之让create-react-app支持导入less</title>
+      <link>https://alili.tech/archive/3b5f5a23/</link>
+      <pubDate>Fri, 14 Jul 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3b5f5a23/</guid>
+      <description>目前来说,create-react-app并不支持直接导入LESS; 这里我就介绍一下,如何让它支持LESS的导入.
+create-react-app是基于webpack的,只是没有暴露webpack.config相关的文件.想要支持less,肯定是要修改webpack的配置文件的. 以下命令可以做到暴露出配置文件来:
+npm run eject  运行完毕之后,你会看见多出了一个config文件夹. 里面有webpack.config.dev.js和webpack.config.prod.js等配置文件.
+接下来,安装less-loader
+npm install less-loader less --save-dev  然后修改webpack.config.dev.js文件,
+我们只需要修改两个地方
+第一: 找到下面代码 exclude: [ /\.html$/, /\.(js|jsx)$/, /\.css$/, /\.json$/, /\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, ]  将.css改为.(css|less)，内容变为：
+exclude: [ /\.html$/, /\.(js|jsx)$/, /\.(css|less)$/, /\.json$/, /\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, ]  第二个：找到test: /.css$/ 更改为test: /.(css|less)$/
+并在下面的use数组里面增加less-loader
+{ loader: require.resolve(&#39;less-loader&#39;) // compiles Less to CSS }  更改完以后这部分代码大概长这个样子：
+{ test: /\.(css|less)$/, use: [ require.resolve(&#39;style-loader&#39;), { loader: require.</description>
+    </item>
+    
+    <item>
+      <title>React系列之JSX</title>
+      <link>https://alili.tech/archive/10fba257/</link>
+      <pubDate>Thu, 13 Jul 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/10fba257/</guid>
+      <description>JSX是一个有趣的东西。它看似像一个模板语言，但是又具备javascript的所有能力。
+在React中，JSX用来生成React元素。
+我们使用create-react-app创建一个APP后：
+一段JSX代码 import React, { Component } from &#39;react&#39;; import ReactDOM from &#39;react-dom&#39;; class App extends Component { render() { return ( &amp;lt;div className=&amp;quot;App&amp;quot;&amp;gt; 我是一个APP &amp;lt;/div&amp;gt; ); } } ReactDOM.render(&amp;lt;App /&amp;gt;, document.getElementById(&#39;root&#39;));  我们可以在JSX中内嵌表达式 //插入数据 const data = {name:&amp;quot;小明&amp;quot;} const ele = &amp;lt;div&amp;gt;我的名字是：{data.name} &amp;lt;/div&amp;gt;; //计算 const ele1 = &amp;lt;div&amp;gt; {1+1} &amp;lt;/div&amp;gt;; //三元表达式 const ele2 = &amp;lt;div&amp;gt; {true?&amp;quot;我是小明&amp;quot;：&amp;quot;我不是小明&amp;quot;} &amp;lt;/div&amp;gt;; //在属性里 const ele3 = &amp;lt;img src={date.xxx} /&amp;gt;;  因为JSX使用Babel编译后,本身自己就是一个对象.</description>
+    </item>
+    
+    <item>
+      <title>React系列之从一个脚手架开始说起:create-react-app</title>
+      <link>https://alili.tech/archive/7a6daf6e/</link>
+      <pubDate>Wed, 12 Jul 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7a6daf6e/</guid>
+      <description>React的全家桶实在太过于庞大。如果初学者想直接品味React的魅力，这里介绍一个官方的脚手架。使用方法特别简单。
+create-react-app 大概使用方法 安装
+npm install -g create-react-app  创建一个app
+create-react-app my-app cd my-app/  文件结构：
+my-app ├── README.md ├── node_modules ├── package.json ├── .gitignore ├── public │ └── favicon.ico │ └── index.html │ └── manifest.json └── src └── App.css └── App.js └── App.test.js └── index.css └── index.js └── logo.svg └── registerServiceWorker.js  启动应用：
+npm start  用浏览器打开 http://localhost:3000/ 就可以直接看到你的应用了。
+如果你想打包你的应用：
+npm run build  特点  不需要配置； 对 React, JSX, ES6 和 Flow 可以直接编译； 开发服务器； 浏览器热加载的功能； JavaScript 文件中可以直接 import CSS 和图片； 自动处理 CSS 的兼容问题，无需添加 -webkit 前缀； 集成好了编译命令，编译后直接发布成产品，包含 sourcemaps。  哎哟，路边又捡了一个叫 create-react-native-app 的脚手架:</description>
+    </item>
+    
+    <item>
+      <title>npm、yarn包管理工具切换淘宝源</title>
+      <link>https://alili.tech/archive/99619c4e/</link>
+      <pubDate>Sat, 01 Jul 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/99619c4e/</guid>
+      <description> 因为一些特殊原因，npm、Yarn等包管理软件在国内下载总是有一点慢。 可以切换为淘宝源，直接从国内的服务器直接拉取。 这里做一个笔记：
+NPM npm config set registry https://registry.npm.taobao.org --global npm config set disturl https://npm.taobao.org/dist --global  如果不能开心的使用以上配置,可以尝试以下方法:
+npm config set registry http://registry.cnpmjs.org npm info underscore //（如果上面配置正确这个命令会有字符串response）  yarn yarn config set registry https://registry.npm.taobao.org --global yarn config set disturl https://npm.taobao.org/dist --global  如果出现EACCES: permission denied这样的权限报错， 修复/usr/local目录的所有权：
+sudo chown -R `whoami` /usr/local  </description>
+    </item>
+    
+    <item>
+      <title>跨域还可以这样玩,使用CSS3特性做跨域</title>
+      <link>https://alili.tech/archive/b0bb249b/</link>
+      <pubDate>Tue, 20 Jun 2017 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b0bb249b/</guid>
+      <description>CSST (CSS Text Transformation) 通过CSS3的content获取内容。
+ 利用js动态创建一个link插入到文档中, 请求css文件.
+ 利用 computedStyle = window.getComputedStyle 获取指定元素的style 对象
+ 利用 computedStyle .content 获取内容
+  服务端可以返回的 css 文件内容：
+@keyframes anima { from {} to { opacity: 0; } } @-webkit-keyframes anima { from {} to { opacity: 0; } } #CSST { content: &amp;quot;${text}&amp;quot;; animation: anima 2s; -webkit-animation: anima 2s; }  ${text}就是我们要填充的数据
+监听函数 animationstart/webkitAnimationStart 来判断css是否加载完成
+给#CSST元素设置动画
+js逻辑：
+function handle () { var computedStyle = getComputedStyle(span, false); var content = computedStyle.</description>
+    </item>
+    
+    <item>
+      <title>Object.defineProperty与Proxy的共同之处</title>
+      <link>https://alili.tech/archive/4c861783/</link>
+      <pubDate>Thu, 01 Jun 2017 11:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/4c861783/</guid>
+      <description>在看vue文档的时候发现一个有意思的地方. 就是关于Object.defineProperty的利用与Proxy有相似之处.非常有意思.
+文档是这样说的:
+ 把一个普通 JavaScript 对象传给 Vue 实例的 data 选项，Vue 将遍历此对象所有的属性，并使用 Object.defineProperty 把这些属性全部转为 getter/setter。
+ Object.defineProperty 语法：
+Object.defineProperty(obj, prop, descriptor)   obj：必需。目标对象 prop：必需。需定义或修改的属性的名字 descriptor：必需。目标属性所拥有的特性  返回值:
+传入函数的对象。即第一个参数obj
+getter/setter 存取器描述 当使用存取器描述属性的特性的时候，允许设置以下特性属性：
+var obj = {}; Object.defineProperty(obj,&amp;quot;newKey&amp;quot;,{ get:function (){} | undefined, set:function (value){} | undefined });  当设置或获取对象的某个属性的值的时候，可以提供getter/setter方法。
+var obj = {}; var initValue = &#39;hello&#39;; Object.defineProperty(obj,&amp;quot;newKey&amp;quot;,{ get:function (){ //当获取值的时候触发的函数 return initValue; }, set:function (value){ //当设置值的时候触发的函数,设置的新值通过参数value拿到 initValue = value; } }); //获取值 console.</description>
+    </item>
+    
+    <item>
+      <title>聊聊Vue.js的事件修饰符</title>
+      <link>https://alili.tech/archive/9ca26edd/</link>
+      <pubDate>Thu, 25 May 2017 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9ca26edd/</guid>
+      <description>事件修饰符 说到vue的事件修饰符,相对angularJs来说,实在是太爽了,大大增加了可读性.
+在日常开发中,经常要调用event.preventDefault 或者event.stopPropagation等方法.
+没有事件修饰符的话,我们会这样写:
+//Angularjs $scope.fn=function(message,event){ if (event) event.preventDefault() alert(message) } }  //vue 也可以这样 methods: { fn: function (message, event) { // 现在我们可以访问原生事件对象 if (event) event.preventDefault() alert(message) } }  在vue中提供了更加方便的写法:
+&amp;lt;!-- 阻止单击事件冒泡 --&amp;gt; &amp;lt;a v-on:click.stop=&amp;quot;doThis&amp;quot;&amp;gt;&amp;lt;/a&amp;gt; &amp;lt;!-- 提交事件不再重载页面 --&amp;gt; &amp;lt;form v-on:submit.prevent=&amp;quot;onSubmit&amp;quot;&amp;gt;&amp;lt;/form&amp;gt; &amp;lt;!-- 修饰符可以串联 --&amp;gt; &amp;lt;a v-on:click.stop.prevent=&amp;quot;doThat&amp;quot;&amp;gt;&amp;lt;/a&amp;gt; &amp;lt;!-- 只有修饰符 --&amp;gt; &amp;lt;form v-on:submit.prevent&amp;gt;&amp;lt;/form&amp;gt; &amp;lt;!-- 添加事件侦听器时使用事件捕获模式 --&amp;gt; &amp;lt;div v-on:click.capture=&amp;quot;doThis&amp;quot;&amp;gt;...&amp;lt;/div&amp;gt; &amp;lt;!-- 只当事件在该元素本身（而不是子元素）触发时触发回调 --&amp;gt; &amp;lt;div v-on:click.self=&amp;quot;doThat&amp;quot;&amp;gt;...&amp;lt;/div&amp;gt; &amp;lt;!-- 点击事件将只会触发一次 --&amp;gt; &amp;lt;a v-on:click.once=&amp;quot;doThis&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;  修饰键 在键盘的事件里,Vue也提供了很方便的处理.</description>
+    </item>
+    
+    <item>
+      <title>一个关于微信SPA页面webview的缓存问题</title>
+      <link>https://alili.tech/archive/613bb601/</link>
+      <pubDate>Wed, 22 Feb 2017 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/613bb601/</guid>
+      <description> 一个低级问题 因为公司微信项目用的是angular路由的单页面应用.所以切换页面是基于hash值做到的.
+我们遇到了一个问题,每一次部署新的网页代码到服务器上. 在Android微信客户端,总是要过好多天.甚至要重新卸载微信.重新打开页面之后,才会更新页面.(iPhone上却没有这个问题)
+如果版本正式上线之后,遇到了紧急bug.那将是一场灾难啊.
+解决办法 给url加上时间戳 首先想到的解决办法是,在网址后面加上时间戳,就像是这样:
+xxx.com#/home/test/page/?t=(我是时间戳)  可是页面在安卓客户端却没有任何改善
+这是为什么,是微信客户端的bug吗?
+并不是,是时间戳加错了位置.
+我们换一种方式.
+xxx.com?t=(我是时间戳)#/home/test/page/  这个时候,我们发现安卓微信客户端的缓存问题迎刃而解了.
+牵引出一个问题 为什么我们的时间戳放在最后面,浏览器取了缓存的代码.
+首先我们看看URL的格式:
+protocol :// hostname[:port] / path / [;parameters][?query]#hash  我们的时间戳用的是 &amp;ldquo;?&amp;rdquo; 分隔符,也就是query参数.
+第一次,我们把query参数放在了&amp;rdquo;#&amp;ldquo;后面.于是我们的时间戳,也就是所谓的query参数,成了hash值.
+不管是什么符号,什么字符,只要是放在了&amp;rdquo;#&amp;ldquo;后面的,都是hash值.
+因为HTTP请求并不包括hash,所以不管我们怎么修改#号后面的时间戳,服务器接收到的请求,都是一样的.
+重要的事情说三遍:
+ HTTP请求不包括hash HTTP请求不包括hash HTTP请求不包括hash  </description>
+    </item>
+    
+    <item>
+      <title>Hexo的DTraceProviderBindings MODULE_NOT_FOUND问题</title>
+      <link>https://alili.tech/archive/e25431a8/</link>
+      <pubDate>Sun, 19 Feb 2017 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/e25431a8/</guid>
+      <description>最近在mac上安装Hexo,老是报错 DTraceProviderBindings MODULE_NOT_FOUND;
+第一种报错 报错命令如下:
+{ [Error: Cannot find module &#39;./build/Release/DTraceProviderBindings&#39;] code: &#39;MODULE_NOT_FOUND&#39; } { [Error: Cannot find module &#39;./build/default/DTraceProviderBindings&#39;] code: &#39;MODULE_NOT_FOUND&#39; } { [Error: Cannot find module &#39;./build/Debug/DTraceProviderBindings&#39;] code: &#39;MODULE_NOT_FOUND&#39; }  虽然hexo的生成 发布功能没有影响.但是每次运行命令的时候,就会报错.表示很不能忍;
+网上的普遍方法是:
+npm install hexo --no-optional  但是,我的电脑还是没有效果;
+最后我重装了 hexo-cli
+npm uninstall hexo-cli -g npm install hexo-cli -g  我的报错问题就解决了.
+第二种报错 { Error: Cannot find module &#39;./build/Release/DTraceProviderBindings&#39; at Function.Module._resolveFilename (module.js:469:15) at Function.Module._load (module.js:417:25) at Module.require (module.</description>
+    </item>
+    
+    <item>
+      <title>Express设置CORS,让浏览器可以跨域访问你的服务器</title>
+      <link>https://alili.tech/archive/e06698c9/</link>
+      <pubDate>Sat, 18 Feb 2017 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/e06698c9/</guid>
+      <description> 说到前端跨域,确实让很多前端宝宝们捏了一把汗.
+跨域的解决方法可谓是八仙过海.各种黑科技,各种黑魔法.让人看的目瞪口呆.(不了解的,可以去搜)
+但是都没有相当完美的解决方案,都是可以这样却不能那样.
+今天要说的就是目前跨域的终极解决方案(IE8以及更低版本的IE浏览器不支持)
+Cross-Origin Resource Sharing (简称 CORS); var express = require(&#39;express&#39;); var app = express(); //设置CORS app.all(&#39;*&#39;, function(req, res, next) { res.header(&amp;quot;Access-Control-Allow-Origin&amp;quot;, &amp;quot;*&amp;quot;); //第二个参数,是一个*号,表示任意域名下的页面都可以都可以请求请求这台服务器; //设置指定域名: //res.header(&amp;quot;Access-Control-Allow-Origin&amp;quot;, &amp;quot;http://baidu.com&amp;quot;); //这样,baidu.com下面的网页,就可以ajax请求你的服务器了 res.header(&amp;quot;Access-Control-Allow-Headers&amp;quot;, &amp;quot;X-Requested-With&amp;quot;); res.header(&amp;quot;Access-Control-Allow-Methods&amp;quot;,&amp;quot;PUT,POST,GET,DELETE,OPTIONS&amp;quot;); //第二个参数,为对方可以以哪种HTTP请求方式请求你的服务器,根据自己的情况酌情设置 res.header(&amp;quot;X-Powered-By&amp;quot;,&#39; 3.2.1&#39;) res.header(&amp;quot;Content-Type&amp;quot;, &amp;quot;application/json;charset=utf-8&amp;quot;); next(); }); app.get(&#39;/&#39;, function(req, res) { res.send(&amp;quot;你已经成功访问该服务器&amp;quot;); }); app.listen(3000);  </description>
+    </item>
+    
+    <item>
+      <title>让Nodejs像浏览器一样Fetch你想要的</title>
+      <link>https://alili.tech/archive/5bc12a97/</link>
+      <pubDate>Fri, 17 Feb 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/5bc12a97/</guid>
+      <description>上一篇简单的介绍了Nodejs http模块的get与post方式, 但是因为post的配置还是比较繁琐,今天推荐一个模块:
+node-fetch
+安装 npm install node-fetch --save  使用 var fetch = require(&#39;node-fetch&#39;); // HTML fetch(&#39;https://github.com/&#39;) .then(function(res) { return res.text(); }).then(function(body) { console.log(body); }); // JSON fetch(&#39;https://api.github.com/users/github&#39;) .then(function(res) { return res.json(); }).then(function(json) { console.log(json); }); // 当网络发生错误 fetch(&#39;http://domain.invalid/&#39;) .catch(function(err) { console.log(err); }); // stream 流 var fs = require(&amp;quot;fs&amp;quot;) fetch(&#39;https://assets-cdn.github.com/images/modules/logos_page/Octocat.png&#39;) .then(function(res) { var dest = fs.createWriteStream(&#39;./octocat.png&#39;); res.body.pipe(dest); }); // buffer var fileType = require(&#39;file-type&#39;); fetch(&#39;https://assets-cdn.github.com/images/modules/logos_page/Octocat.png&#39;) .then(function(res) { return res.</description>
+    </item>
+    
+    <item>
+      <title>Nodejs之http模块的get与post请求</title>
+      <link>https://alili.tech/archive/59cf5417/</link>
+      <pubDate>Thu, 16 Feb 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/59cf5417/</guid>
+      <description>在前端,经常要使用ajax获取,提交数据到服务端. 服务端当然也可以像另一个服务端发起同样的请求.
+今天,说一下Nodejs如何向另一个服务端发起请求.
+GET请求 写法还是相当简单,跟angular的$http.get有一点点的像.
+var http = require(&#39;http&#39;); http.get(&amp;quot;http://baidu.com&amp;quot;, function(response) { console.log(response) }); })  POST请求 相对get,post的写法繁琐了很多.
+虽然过程很清晰,但是对于写惯了各种前端框架封装的ajax后,还是难以接受的.
+var http = require(&#39;http&#39;); var querystring = require(&#39;querystring&#39;); //json转换为字符串 var data = querystring.stringify({ id:&amp;quot;1&amp;quot;, text:&amp;quot;hello&amp;quot; }); var options = { host: &#39;xxx.xxx.xxx&#39;, path:&#39;/xxx/xxx/xxx/&#39;, method: &#39;POST&#39;, headers: { &#39;Content-Type&#39;: &#39;application/x-www-form-urlencoded&#39;, &#39;Content-Length&#39;: Buffer.byteLength(data) } }; var req = http.request(options, function(res) { res.setEncoding(&#39;utf8&#39;); res.on(&#39;data&#39;, function (chunk) { //拼接数据 console.log(&amp;quot;body: &amp;quot; + chunk); }); res.</description>
+    </item>
+    
+    <item>
+      <title>利用Nodejs获取公网IP</title>
+      <link>https://alili.tech/archive/cdd27771/</link>
+      <pubDate>Wed, 15 Feb 2017 21:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cdd27771/</guid>
+      <description> 因为树莓派放在家里,因为运营商的关系,公网ip是一直会变的. 那我们要怎么样才能快捷的拿到当前网络的公网ip呢?
+今天介绍一个小工具,可以简单的获取到公网ip.
+public-ip
+安装 npm install --save public-ip  使用 const publicIp = require(&#39;public-ip&#39;); publicIp.v4().then(ip =&amp;gt; { console.log(ip); //=&amp;gt; &#39;46.5.21.123&#39; }); publicIp.v6().then(ip =&amp;gt; { console.log(ip); //=&amp;gt; &#39;fe80::200:f8ff:fe21:67cf&#39; });  设置HTTPS 如果使用https,会基于icanhazip.com  服务来查询的.
+相对来说会安全一些,但是也会稍微的慢一些.
+ publicIp.v4({ https:true //默认false }).then(ip =&amp;gt; { console.log(ip); //=&amp;gt; &#39;46.5.21.123&#39; });  设置超时时间  publicIp.v4({ timeout:5000 //默认5000毫秒 }).then(ip =&amp;gt; { console.log(ip); //=&amp;gt; &#39;46.5.21.123&#39; });  </description>
+    </item>
+    
+    <item>
+      <title>基于Github与Coding等代码托管平台的自动化部署</title>
+      <link>https://alili.tech/archive/ff76a1bd/</link>
+      <pubDate>Tue, 14 Feb 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/ff76a1bd/</guid>
+      <description>自从玩起了树莓派,每天都要经常把代码更新到树莓派上.
+但是次数太频繁了,重复的事情就要做一遍又一遍.非常的浪费时间.
+发现Github跟Codeing都有webhook功能,
+于是我便有了一个想法:
+想每次git push 更新代码的时候, 利用托管平台的webhook通知我的树莓派, 接收到通知后,自动更新托管平台的最新代码,并且自动重启.
+这样不就节约很多时间了吗? 在npmjs.com上搜索有没有相关功能的模块,果然有:
+github-webhook-handler
+coding-webhook-handler
+接下来我们以coding为例,来写一个自动部署的小程序.
+先准备一段树莓派接受到通知后,运行的一段sh代码
+#! /bin/bash cd /home/pi/workspace/xxx //打开项目所在的目录 git reset --hard origin/master git clean -f git pull origin master //拉取并且合并代码 cnpm install //安装模块 pm2 reload app //pm2 重新启动程序  下面是js代码
+const http = require(&amp;quot;http&amp;quot;); const spawn =require(&#39;child_process&#39;).spawn; const createHandler = require(&amp;quot;coding-webhook-handler&amp;quot;); const handler = createHandler({ //配置好coding的参数 path: &amp;quot;/&amp;quot;, token: &amp;quot;dsdsdsdsds&amp;quot; }); http.createServer((req, res) =&amp;gt; { //开启一个服务,接收托管平台发送过来的通知 handler(req, res, (err) =&amp;gt; { res.</description>
+    </item>
+    
+    <item>
+      <title>利用Nodejs生成阿里云API签名</title>
+      <link>https://alili.tech/archive/7cafffa9/</link>
+      <pubDate>Mon, 13 Feb 2017 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7cafffa9/</guid>
+      <description>想要调用阿里云的云解析API,必须要生成阿里云所要求的签名. 签名机制
+网上一直没有找到nodejs相关获取签名的代码. 按照阿里云的要求,我自己写了一段程序,便于大家轻松的生成签名.
+const querystring = require(&#39;querystring&#39;); const crypto = require(&amp;quot;crypto&amp;quot;); module.exports=function getSignatureParams(params) { StringToSign = &amp;quot;GET&amp;quot; + &amp;quot;&amp;amp;&amp;quot; + percentEncode(&amp;quot;/&amp;quot;) + &amp;quot;&amp;amp;&amp;quot; + percentEncode(uriSort(params)) var Signture = getSignture(StringToSign); params.Signature = Signture; return params; //返回带签名的完整uri } function percentEncode(str) { //百分比编码 uri var s = encodeURI(str); return s .replace(/ /g, &amp;quot;%20&amp;quot;) .replace(/\//g, &amp;quot;%2F&amp;quot;) .replace(/\+/g, &amp;quot;%20&amp;quot;) .replace(/\*/g, &amp;quot;%2A&amp;quot;) .replace(/\%7E/g, &amp;quot;~&amp;quot;) .replace(/\=/g, &amp;quot;%3D&amp;quot;) .replace(/\&amp;amp;/g, &amp;quot;%26&amp;quot;) .replace(/\:/g, &amp;quot;%253A&amp;quot;) } function getSignture(Signature) { //计算HMAC // 47awTgVxfVEBL8hewkBgYD6kEvuJn0 return crypto .</description>
+    </item>
+    
+    <item>
+      <title>关闭Mac系统的SIP与卸载Mac上的输入法</title>
+      <link>https://alili.tech/archive/760c8e37/</link>
+      <pubDate>Sat, 21 Jan 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/760c8e37/</guid>
+      <description>mac电脑上,有的多余的输入法,发现竟然删不掉.每次切换输入法的时候总是要多按几次切换.表示极其的不爽.
+首先就是系统默认的输入法.
+关闭 mac 系统的 SIP  重启系统，按住 Command + R 进入恢复模式。
+ 点击顶部菜单栏 实用工具 中的 终端 。
+ 输入以下命令来禁用 SIP 保护机制。
+  csrutil disable   执行后输出以下信息表示禁用成功。
+Successfully disabled System Integrity Protection. Please restart the machine for the changes to take effect.  最后重启系统即可。
+  重新打开 SIP 方法 在恢复模式下的终端输入以下命令
+csrutil enable  卸载系统输入法  安装Xcode或下载“Property List Editor”，因为需要打开(.plist)格式文件
+ 打开“终端”
+ 在“终端”里输入命令
+sudo open ~/Library/Preferences/com.apple.HIToolbox.plist  回车，输入用户账户的密码</description>
+    </item>
+    
+    <item>
+      <title>Raspberry之时间自动校准</title>
+      <link>https://alili.tech/archive/4befbcf0/</link>
+      <pubDate>Fri, 20 Jan 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/4befbcf0/</guid>
+      <description>应该是树莓派系统版本的问题,网上很多方法开启网络时间协议(时间自动校准)已经失效.对于我这样的小白来说,试了很多种方法,都没有成功.
+今天来说说正确的开启姿势;
+树莓派没有默认开启时间自动校准功能的.需要打开NTP（Network Time Protocol，网络时间协议）才可以尽可能的保证时间的准确度.
+启用NTP： sudo timedatectl set-ntp true  接下来我们来看看时间是否正确:
+pi@raspberrypi:~ $ date 2017年 03月 20日 星期一 21:38:41 CST  很明显时间都正确了.如果时间差了24小时以内,那大概是时区错了.</description>
+    </item>
+    
+    <item>
+      <title>POST请求要比GET安全吗</title>
+      <link>https://alili.tech/archive/b50a8cab/</link>
+      <pubDate>Mon, 16 Jan 2017 11:46:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b50a8cab/</guid>
+      <description>从学习发送请求的第一天,老师就告诉我们. POST请求,要比GET请求要安全.
+为什么? 在利用from发送请求的时代.get请求会夹带信息在地址栏里,而post不会.post会把信息放在body里面.
+因为参数放在地址栏里的get请求,会让别人看得见.一些信息难免会暴露.
+所以得出,post要比get更加安全.
+ 后来公司新来了一名后台小哥,他说post要比get更安全,于是没有经过任何人同意,把所有的新增接口都设计成了post.当我联调的时候,看着这一连串的post请求,一脸懵逼.开发这么久,我从来不觉得这会有安全问题的存在.
+ 公司前端都是AngularJs的SPA应用. 所以每次发送请求的方式都是Ajax.并不存在get请求的参数会暴露在地址栏的情况.
+如果所有的接口,全部变成了post,那我们的代码会变成什么样子呢?
+//查找数据 $http.post(&amp;quot;xxx.xxx.xxx&amp;quot;) //增加数据 $http.post(&amp;quot;xxx.xxx.xxx&amp;quot;) //修改数据 $http.post(&amp;quot;xxx.xxx.xxx&amp;quot;) //删除数据 $http.post(&amp;quot;xxx.xxx.xxx&amp;quot;)  所有的请求都是post,根本没有任何语义,一塌糊涂,非常不利于查看.
+大家都知道,请求方式都好几种.
+ GET POST HEAD PUT DELETE OPTIONS TRACE CONNECT  对于增删改查都有相应的方式,那我们的代码:
+//查找数据 $http.get(&amp;quot;xxx.xxx.xxx&amp;quot;) //增加数据 $http.post(&amp;quot;xxx.xxx.xxx&amp;quot;) //修改数据 $http.put(&amp;quot;xxx.xxx.xxx&amp;quot;) //删除数据 $http.delete(&amp;quot;xxx.xxx.xxx&amp;quot;)  小结: 在SPA应用里,POST并没有跟GET上有所谓安全性的差异.我们应该使用更加适合的请求方式,来发送以及请求数据.</description>
+    </item>
+    
+    <item>
+      <title>Raspberry之开机启动pm2</title>
+      <link>https://alili.tech/archive/9b723d04/</link>
+      <pubDate>Thu, 12 Jan 2017 20:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/9b723d04/</guid>
+      <description>我玩树莓派的过程简直可以用坎坷来形容,研究了十几个小时才安装上Nodejs.
+接下来想要做开机启动pm2,又折腾了十几个小时.网上的方法因为跟不上版本的迭代更新了,导致各种失败.
+接下来,介绍一下让pm2在树莓派上开机启动的方法
+首先下载pm2
+cnpm install pm2 -g  运行需要run的代码
+pm2 start app.js  保存这时候pm2运行的状态,以便开机启动后,pm2 可以重新跑app.js
+sudo pm2 save //系统会生成一个文件 &#39;/home/pi/.pm2/dump.pm2&#39;  (重点)接下来我们要锁定这个文件,不允许任何方式的修改
+sudo chattr +i /home/pi/.pm2/dump.pm2  设置开机启动
+sudo pm2 startup systemd -u pi --hp /home/pi sudo reboot //重启查看开机启动的效果  通过以上步骤,我们就可以成功的开机启动pm2 并且运行app.js
+如果我们以后想修改pm2 开机启动的配置,我们需要解锁dump.pm2文件,
+pm2 start xxx.js //运行另一个程序 sudo chattr -i /home/pi/.pm2/dump.pm2 //解锁文件 sudo pm2 save //保存配置 sudo chattr +i /home/pi/.pm2/dump.pm2 //重新加锁 sudo pm2 startup systemd -u pi --hp /home/pi //设置开机启动 sudo reboot 重启操作系统  以上就是修改pm2开机启动配置的方法了,是不是简单得不能再简单?</description>
+    </item>
+    
+    <item>
+      <title>Raspberry之安装Nodejs</title>
+      <link>https://alili.tech/archive/58ab432d/</link>
+      <pubDate>Wed, 11 Jan 2017 22:30:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/58ab432d/</guid>
+      <description> 我安装的树莓派系统是自带Nodejs的,但是版本非常的低.而且没有npm. 为了安装新版的nodejs,我折腾了十几个小时,网上的方法各种失败.
+最终终于安装成功了,接下来我介绍一下我的安装方法.
+下载Nodejs Nodejs 下载页面
+我们选择Linux Binaries (ARM) ARMv7的版本,复制下载链接
+wget https://nodejs.org/dist/v6.9.5/node-v6.9.5-linux-armv7l.tar.xz tar -xzf node-v6.9.5-linux-armv7l.tar.xz //解压安装包 sudo mv node-v6.9.5-linux-armv7l /usr/local/bin/node/ sudo ln /usr/local/bin/node/bin/node /usr/local/bin/node sudo ln -s /usr/local/bin/node/lib/node_modules/npm/bin/npm /usr/local/bin/npm  好了,这时候我们在任意目录下输入:
+node -v npm -v  node 是最新版本的了,npm 也有了
+因为在国内,用npm下载包的话,会经常不稳定,这时候我们可以用到 cnpm, 输入以下命令:
+$ npm install -g cnpm --registry=https://registry.npm.taobao.org  下载完成之后,我们安装模块的时候:
+$ cnpm install [name]  </description>
+    </item>
+    
+    <item>
+      <title>Raspberry之外网访问树莓派</title>
+      <link>https://alili.tech/archive/8ad4a3a8/</link>
+      <pubDate>Tue, 10 Jan 2017 20:53:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/8ad4a3a8/</guid>
+      <description>我想在公司的时候,也可以操作我家里的树莓派. 可是家里的ip地址是动态的,那我应该怎么办呢?
+经过各种网上一顿搜索之后,利用路由器的端口转发或者DMZ,可以做到外网访问内网.
+可是我设置完之后,并没有成功.折腾了好久,没有找到原因.最后以失败告终.(我怀疑我买到了假路由器).
+各种方案尝试过之后,利用花生壳可以做到外网访问内网,花生壳的叫法是:
+内网穿透
+进入花生壳的下载地址,选择树莓派版本
+下载页面
+复制最新版本的花生壳树莓派版本的最新版下载路径
+wget http://download.oray.com/peanuthull/embed/phddns_raspberry.tgz //下载花生壳 tar zxvf phddns_raspberry.tgz //解压安装包  解压完成后，在当前路径下执行cd phddns2，进入phddns2文件夹，执行./oraynewph start ，如提示Oraynewph start success说明花生壳成功安装运行。
+其实我运行oraynewph start的时候并没有成功,
+如果你也碰到同样的情况的话可以输入以下命令:
+$&amp;gt; sudo mkdir -p /usr/oray-app $&amp;gt; sudo tar -zxvf ./oraynewph.tgz -C /usr/oray-app/ $&amp;gt; sudo rm -rf oraynewph.tgz $&amp;gt; sudo mv ./parse /usr/oray-app/parse $&amp;gt; sudo mv ./oray_serve /etc/init.d/oray_serve $&amp;gt; sudo mv ./oraynewph /bin/oraynewph $&amp;gt; cd .. $&amp;gt; rm -rf phddns2 $&amp;gt; sudo touch /tmp/oraynewph_log $&amp;gt; sudo update-rc.</description>
+    </item>
+    
+    <item>
+      <title>Raspberry之利用SSH操作树莓派</title>
+      <link>https://alili.tech/archive/467ebcb2/</link>
+      <pubDate>Tue, 10 Jan 2017 17:53:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/467ebcb2/</guid>
+      <description>各种搜索,各种折腾之后,终于给我的小树莓派安装好了操作系统. 但是,这PIXEL OS图形操作界面,各种莫名其妙点不动的bug. 折腾了好几个小时之后,让我各种抓狂.
+因为是刚刚接触Linux,很多问题需要在网上搜索,PC跟树莓派之间切换来切换去实在是不好受.
+下面就介绍,用另一台电脑通过SSH来控制树莓派的方法.来解决以上各种抓狂的问题.
+在树莓派打开命令行:
+输入 sudo raspi-config
+选择Advanced Options
+选择SSH
+选择yes
+SSH 已经启用
+然后打开PC的命令行(我用的是MAC,命令行直接可以用ssh)
+输入:
+ssh pi@192.168.1.xxx  地址为树莓派的ip地址,如果不知道,在树莓派命令行输入 ifconfig,就可以看到了
+然后输入密码,如果还没有修改过用户pi的密码的话,默认密码就是:raspberry
+随后就可以尽情的玩耍了</description>
+    </item>
+    
+    <item>
+      <title>Raspberry之系统安装</title>
+      <link>https://alili.tech/archive/2a0d2aea/</link>
+      <pubDate>Tue, 10 Jan 2017 12:43:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/2a0d2aea/</guid>
+      <description>年过完了，某宝商家终于开始工作发货了。 年前的时候，就想买一个树莓派来玩一玩。可是我运气不好，商家已经准备回家过年了。
+昨天在某宝下单。今天就拿到了。我买的是Raspberry Pi3 Modle B。
+树莓派并没有自带硬盘，所以想要安装系统的话，要自己准备TF卡或者U盘。
+接下来，就要去树莓派的官网下载系统了。 官方安装系统工具，NOOBS非常的简单。
+下载地址
+下载完成后,我们就可以按照以下步骤来安装系统了.
+1,把下载的zip包解压到TF卡里
+2,把TF卡插入树莓派,并且用HDMI接入显示器,鼠标键盘,接上电源.
+这时,树莓派被点亮,显示器会出现以下内容:
+3,这时按下shift按键,会进入恢复系统界面
+选择你想要安装的系统,点击安装.
+等待几分钟,系统就安装好了.
+重启进入桌面后,这桌面操作系统叫 PIXEL OS;基于 Debian.
+PIXEL 的意思是“Pi Improved Xwindows Environment, Lightweight”，即“树莓派改进的轻量级 Xwindows 环境”.</description>
+    </item>
+    
+    <item>
+      <title>关于我在工作中项目调试的方法</title>
+      <link>https://alili.tech/archive/cb56039f/</link>
+      <pubDate>Wed, 04 Jan 2017 11:46:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cb56039f/</guid>
+      <description>移动端调试 想要在pc上调试移动端页面,需要做下面几个步骤
+PC 1.下载 微信web开发者工具;
+2.打开微信开发者工具,选择移动调试
+3.选择一个请求,把cookie复制出来
+4.在电脑chrome打开开发者工具,切换到console输入以下代码 (用于鉴权)
+ document.cookie=&amp;quot;你刚刚复制的cookie&amp;quot;  5.如果是微信页面,需要用chrome模拟微信浏览器的 user-agent,教程如下:
+模拟UA实现访问只能在微信上打开的网页
+如果觉得麻烦,可以直接使用微信开发者工具自带的浏览器打开微信页面,里面的user agent,默认是为心里的
+做完以上步骤,你就可以正常在电脑上打开移动页面,或者微信网页了
+微信开发者模式 如果你的微信帐号被添加到了公众号web开发者名列. 你可以在微信web开发者工具 直接输入最原始的链接地址,便可以在电脑上调试了.(因为后台需要跳转好几次,来拿到cookie.最终微信复制出来的地址,是拿不到数据的)
+该方法,要把代码部署到服务器上,才可以调试.目前项目的自动化做得还算方便.只要 grunt $build,代码就会自动部署到服务器.
+如果想在本地开发环境,直接调试.只要拿到cookie,就可以解决所有问题.
+微信web开发者工具的调试器与chrome一致,所以复制出cookie也是很方便的了.接下来,参照以上PC的调试方法.
+mac 如果你用mac 并且有iphone,可以使用以下方法
+使用safari对webview进行调试
+注:无视教程第三步,也不需要xcode.只要是webview 都可以直接调试</description>
+    </item>
+    
+    <item>
+      <title>我也写一个Canvas惊悚的粒子效果</title>
+      <link>https://alili.tech/archive/95852f7d/</link>
+      <pubDate>Sun, 04 Sep 2016 11:46:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/95852f7d/</guid>
+      <description>预览: Canvas简单粒子效果预览
+&amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html&amp;gt; &amp;lt;head&amp;gt; &amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;&amp;gt; &amp;lt;title&amp;gt;Canvas简单粒子效果预览&amp;lt;/title&amp;gt; &amp;lt;style&amp;gt; html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; } &amp;lt;/style&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;canvas id=&amp;quot;dotCanvas&amp;quot;&amp;gt;&amp;lt;/canvas&amp;gt; &amp;lt;script&amp;gt; (function () { //创建canvas对象 var domConvas = document.getElementById(&amp;quot;dotCanvas&amp;quot;); var oCanvas = domConvas.getContext(&amp;quot;2d&amp;quot;); var winWidth = document.documentElement.clientWidth; var winHeight = document.documentElement.clientHeight; //设置宽高 domConvas.width = winWidth; domConvas.height = winHeight; //初始化点,并且随机给出每一个点的位置与速度 var dots = []; for (var i = 0; i &amp;lt; 300; i++) { dots.</description>
+    </item>
+    
+    <item>
+      <title>置换与非置换元素</title>
+      <link>https://alili.tech/archive/c36fa5ee/</link>
+      <pubDate>Mon, 29 Aug 2016 17:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/c36fa5ee/</guid>
+      <description> 突然的听到了这个概念.以前从来没有听过.于是就查了查多了解一下.
+置换和非置换元素  置换元素(replaced element)一般是指有默认就有样式的元素,比如:img, input, textarea, select, object
+ 非置换元素(non-replaced element)反之,就是除了:img, input, textarea, select, object 等置换元素以外的其他元素。
+  </description>
+    </item>
+    
+    <item>
+      <title>Javascript的运算符优先级</title>
+      <link>https://alili.tech/archive/6e692504/</link>
+      <pubDate>Thu, 25 Aug 2016 11:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/6e692504/</guid>
+      <description>JavaScript 运算符 下表列出了 JavaScript 运算符，并按优先级顺序从高到低排列。 具有相同优先级的运算符按从左至右的顺序计算
+运算符 | 说明 &amp;ndash;|&amp;ndash; .[ ] ( )|字段访问、数组索引、函数调用和表达式分组 ++ &amp;ndash; - ~ ! delete new typeof void|一元运算符、返回数据类型、对象创建、未定义的值 * / %|相乘、相除、求余数 + - +|相加、相减、字符串串联 &amp;lt;&amp;lt; &amp;gt;&amp;gt; &amp;gt;&amp;gt;&amp;gt;|移位 &amp;lt; &amp;lt;= &amp;gt; &amp;gt;= instanceof|小于、小于或等于、大于、大于或等于、是否为特定类的实例 == != === !==|相等、不相等、全等，不全等 &amp;amp; |按位“与” ^|按位“异或” &amp;#124; | 按位“或” &amp;amp;&amp;amp; |逻辑“与” &amp;#124;&amp;#124; | 逻辑“或” ?: |条件运算 = OP=|赋值、赋值运算（如 += 和 &amp;amp;=） , |多个计算</description>
+    </item>
+    
+    <item>
+      <title>fetch遇到了一个坑</title>
+      <link>https://alili.tech/archive/d82a6654/</link>
+      <pubDate>Wed, 08 Jun 2016 22:52:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/d82a6654/</guid>
+      <description>fetch 在跨域的情况下,不带cookie;
+解决办法:
+带上参数{credentials: &amp;lsquo;include&amp;rsquo;}后才可以在请求里面带上cookie
+fetch(&#39;doAct.action&#39;, {credentials: &#39;include&#39;}).then(function(res) { // ... })  </description>
+    </item>
+    
+    <item>
+      <title>关于HTML5 History API</title>
+      <link>https://alili.tech/archive/e8e7fab1/</link>
+      <pubDate>Mon, 06 Jun 2016 23:52:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/e8e7fab1/</guid>
+      <description>关于HTML5 History API
+html5加强了history, 在spa页面里面,有两种方法可以修改了网址页面不用刷新, 1. 修改页面的hash值, 2. 利用html5加强后了的pushState
+先说所有浏览器都可以使用hash hash 就是我们以前所说的锚点 我们对他并不陌生, 我们可以通过
+location.hash=&amp;quot;212345&amp;quot;  就可以设置网址的hash值,下面是表现形式:
+ www.xxx.com#212345
+ 在html里利用a标签也是可以修改hash的
+&amp;lt;a href=&amp;quot;#123456&amp;quot;&amp;gt;&amp;lt;/a&amp;gt;  当我们修改hash的时候,我们会触发一个事件:
+window.onhashchange = function(){ //do something }  hash暂且说到这里,下面我们说 pushState
+pushState 是history下面的方法
+所以我们调用的时候是:
+history.pushState()  pushState系列 一共有两个方法,一个事件
+history.pushState(state, title, url); history.replaceState(state, title, url); window.onpopstate  pushState pushState一共有三个参数,
+state: 可以放任意你想放的数据，它将附加到新url上，作为该页面信息的一个补充。
+title: 顾名思义，就是document.title。不过这个参数目前并无作用，浏览器目前会选择忽略它。
+url: 新url，也就是你要显示在地址栏上的url。
+pushState 运行之后,可以记录history
+replaceState 也三个参数,作用跟上面是一样的
+唯一的不同点是不会记录history
+window.onpopstate history.pushState()不会触发这个事件 history.replaceState()也不会触发这个事件,
+当页面前进回退的时候会触发这个事件
+事件可以拿到PopStateEvent对象,可以获取到很多关于state的信息</description>
+    </item>
+    
+    <item>
+      <title>关于FormData文件上传</title>
+      <link>https://alili.tech/archive/3f5c7ee8/</link>
+      <pubDate>Fri, 03 Jun 2016 23:46:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/3f5c7ee8/</guid>
+      <description>关于文件上传
+在新时代里,使用input file 选取文件, 然后我们查到这dom对象的时候,把这个对象传进 Formdata,
+var filedata = document.getElementById(&#39;file&#39;); var formData= new FormData(); formData.append(&#39;file&#39;,filedata); var xhr = new XMLHttpRequest(); xhr.open(&#39;post&#39;,&#39;url&#39;,true); xhr.send(formData); xhr.onreadystatechange= function(){ if(xhr.readyState = 4 &amp;amp;&amp;amp;xhr.staus == 200){ do something.... } }  or
+//假设 html已经有一个form,并且包含一个input type=&amp;quot;file&amp;quot; var form = document.getElementById(&#39;form&#39;); //我们只要传进 FormData 就可以了 var formData= new FormData(form); var xhr = new XMLHttpRequest(); xhr.open(&#39;post&#39;,&#39;url&#39;,true); xhr.send(formData); xhr.onreadystatechange= function(){ if(xhr.readyState = 4 &amp;amp;&amp;amp;xhr.staus == 200){ do something.... } }  在没有FormData的年代,我们是用form上传文件</description>
+    </item>
+    
+    <item>
+      <title>Angularjs的按需加载(3)</title>
+      <link>https://alili.tech/archive/f9c22b08/</link>
+      <pubDate>Wed, 01 Jun 2016 23:55:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/f9c22b08/</guid>
+      <description>上一篇大概的描述了一下Angular的启动过程,
+如果想要在自己的项目里,异步的加载第三方模块,就是按照上一篇的主要逻辑再跑一遍.
+这样子,第三方的模块的方法才能全部加载到angular里.
+app.config([ &#39;$controllerProvider&#39;, &#39;$compileProvider&#39;, &#39;$filterProvider&#39;, &#39;$provide&#39;, &#39;$injector&#39;, function($controllerProvider, $compileProvider, $filterProvider, $provide, $injector) { //像第一篇说的那样,把内部方法暴露出来 app.controller = $controllerProvider.register; app.directive = $compileProvider.directive; app.filter = $filterProvider.register; app.factory = $provide.factory; app.service = $provide.service; app.provider = $provide.provider; app.value = $provide.value; app.constant = $provide.constant; app.decorator = $provide.decorator; //并且定义一个全局的函数,方便以后随便调用 //加载三方模块下的代码, window.addModule=function(moduleName){ var module = angular.module(moduleName); var ngProviders = { &#39;$controllerProvider&#39;: $controllerProvider, &#39;$compileProvider&#39;: $compileProvider, &#39;$filterProvider&#39;: $filterProvider, &#39;$provide&#39;: $provide }; if (module.requires) { for (var i = 0; i &amp;lt; module.</description>
+    </item>
+    
+    <item>
+      <title>Angularjs的按需加载(2)</title>
+      <link>https://alili.tech/archive/e0d91a49/</link>
+      <pubDate>Tue, 31 May 2016 20:34:35 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/e0d91a49/</guid>
+      <description>上一篇我们实现了最简单的Angularjs的按需加载,
+可以通过替换Angular的内部方法,再使用require.js配合$q完成了按需加载.
+今天来说说Angular如何按需加载第三方module;
+在此之前,我们得先弄清楚Angular是如何启动的.
+setupModuleLoader方法 在上图中,我们得注意一个非常主要的方法;
+setupModuleLoader方法,顾名思义 —— 模块加载器;
+此方法最后返回的对象为:
+var moduleInstance = { _invokeQueue: invokeQueue, _runBlocks: runBlocks, requires: requires, name: name, provider: invokeLater(&#39;$provide&#39;, &#39;provider&#39;), factory: invokeLater(&#39;$provide&#39;, &#39;factory&#39;), service: invokeLater(&#39;$provide&#39;, &#39;service&#39;), value: invokeLater(&#39;$provide&#39;, &#39;value&#39;), constant: invokeLater(&#39;$provide&#39;, &#39;constant&#39;, &#39;unshift&#39;), animation: invokeLater(&#39;$animateProvider&#39;, &#39;register&#39;), filter: invokeLater(&#39;$filterProvider&#39;, &#39;register&#39;), controller: invokeLater(&#39;$controllerProvider&#39;, &#39;register&#39;), directive: invokeLater(&#39;$compileProvider&#39;, &#39;directive&#39;), config: config, run: function(block) { runBlocks.push(block); return this; } }  看着这对象的格式,有没有特别熟悉?
+当我们运行
+angular.module(&#39;app&#39;,[]); //或者 angular.module(&#39;app&#39;)  我们新建一个module或者获取一个module的时候, 返回的就是这个对象.</description>
+    </item>
+    
+    <item>
+      <title>Angularjs的按需加载(1)</title>
+      <link>https://alili.tech/archive/cbf4498a/</link>
+      <pubDate>Mon, 30 May 2016 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cbf4498a/</guid>
+      <description>今天来聊一聊一直困扰了我很久的问题.Angularjs的按需加载.
+angular的好处这里就不用多说, 但是用久了你会发现,一个网站所有的 Controller, Service, Directive等等,全部加载完了, 页面才开始跑.
+小项目,代码少.不会感觉太大问题.
+但是页面多了,那主页越来越臃肿.有用的,没用的通通加载进来. 虽说全部加载,页面第一次打开会慢很多,之后打开的页面速度会极快. 但是,这一点都不Smart.
+那有什么办法可以做到按需加载呢? 其实很简单,看代码:
+app.config([ &#39;$controllerProvider&#39;, &#39;$compileProvider&#39;, &#39;$filterProvider&#39;, &#39;$provide&#39;, function($controllerProvider, $compileProvider, $filterProvider, $provide) { app.controller = $controllerProvider.register; app.directive = $compileProvider.directive; app.filter = $filterProvider.register; app.factory = $provide.factory; app.service = $provide.service; app.provider = $provide.provider; app.value = $provide.value; app.constant = $provide.constant; app.decorator = $provide.decorator; } ]);  我们要先把angular的方法替换成内部使用的方法,
+这样我们在后面才可以正常的按需加载Controller, Service, Directive&amp;hellip;
+接下来,我们选择一个模块加载器, 流行的加载器有很多,Require.js,Sea.js,System.js 等等.
+选一个最经典的 Require.js;
+下面是按需加载的小demo Github Demo
+我们先配置好,require的config;
+app.bootstrap.js
+require.config({ paths: { &#39;angular&#39;: &#39;http://cdn.</description>
+    </item>
+    
+    <item>
+      <title>Journey</title>
+      <link>https://alili.tech/archive/7abff3e/</link>
+      <pubDate>Sat, 28 May 2016 14:19:04 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7abff3e/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>微信浏览器动态修改Title</title>
+      <link>https://alili.tech/archive/1e2d080b/</link>
+      <pubDate>Thu, 26 May 2016 11:43:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/1e2d080b/</guid>
+      <description>微信浏览器动态修改Title 为什么会有这么一篇文章?之前在做spa页面开发的时候,发现了一件非常匪夷所思的事情.
+下面这段代码在微信浏览器里,是无效的.
+document.title = &amp;quot;我是标题&amp;quot;  标题第一次生成后,就无法在改变.
+不过没有关系,
+下面我们用黑魔法般的代码,来完成微信浏览器里title的修改.
+document.title = &amp;quot;我是标题&amp;quot;; var iframe = document.createElement(&amp;quot;iframe&amp;quot;); iframe.src = &amp;quot;/favicon.ico&amp;quot;; document.body.appendChild(iframe); iframe.onload = function() { setTimeout(function() { document.body.removeChild(iframe); }, 0) }  就是这样,title改变了.</description>
+    </item>
+    
+    <item>
+      <title>Javascript的奇淫技巧</title>
+      <link>https://alili.tech/archive/7807a0b7/</link>
+      <pubDate>Wed, 25 May 2016 11:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/7807a0b7/</guid>
+      <description>类型转换 数组转字符串 var arr = [1,2,3,4,5,6]; var str = arr+&#39;&#39;; //1,2,3,4,5,6  字符串转数字 var str = &#39;999&#39;; var num = str * 1; //999 var str = &#39;999&#39;; var num = str - 0; //999  字符串转数字 var str = &#39;999&#39;; var num = str * 1; // 999  向下取整 var num = ~~1.23232656; // 1 var num = 563.933333 &amp;gt;&amp;gt; 0; // 563  boolean 转换 var bool = !</description>
+    </item>
+    
+    <item>
+      <title>浏览器常用的本地储存方式</title>
+      <link>https://alili.tech/archive/884e3459/</link>
+      <pubDate>Fri, 29 Apr 2016 17:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/884e3459/</guid>
+      <description>日常开发中,难免会遇到一些要求浏览器储存一些数据的需求.目前常用的储存方法有:
+cookie cookie设计之初,本身不是用来储存数据.而是区别http请求. 所以每一次http请求,都会带上cookie.如果cookie储存的量实在过大,肯定会造成http的性能问题.
+// 设置cookie(储存数据) function setcookie(name,value,expired,path,domain){ var now=new Date(); if(name==null){ throw &amp;quot;Cookie Name Must not be Null&amp;quot;; }else if (value==null){ throw &amp;quot;Cookie Value Must not be Null&amp;quot;; }else if(expired==null){ expired=0; } if(path==null){ path=&amp;quot;/&amp;quot;; } if(domain==null){ domain=window.location.host; } now.setTime(now.getTime()+expired*1000); document.cookie=name+&amp;quot;=&amp;quot;+escape(value)+&amp;quot;;expires=&amp;quot;+now.toGMTString()+&amp;quot;;path=&amp;quot;+path+&amp;quot;;domain=&amp;quot;+domain; } // 读取cookie(读取数据) function getcookie(name){ var allcookie=document.cookie; thiscookie=allcookie.match(name+&amp;quot;=[^\\s]*&amp;quot;); mycookie=thiscookie[0].split(&amp;quot;=&amp;quot;); a=mycookie[1].substring(0,mycookie[1].length-1); return unescape(a); }  localStorage 相对cookie的读取操作,localStorage会简单非常多. 另外localStorage每一次更新,都会触发一次onstorage事件
+localStorage.xxx=&amp;quot;alili.tech&amp;quot;; localStorage[&#39;xxx&#39;]=&amp;quot;alili.tech&amp;quot;; localStorage.setItem(&amp;quot;xxx&amp;quot;,&amp;quot;alili.tech&amp;quot;); //获取 localStorage.xxx; localStorage[&#39;xxx&#39;]; localStorage.getItem(&amp;quot;xxx&amp;quot;); //删除 localStorage.removeItem(&amp;quot;xxx&amp;quot;); //清空locaStorage localStorage.clear(); //onstorage事件 window.</description>
+    </item>
+    
+    <item>
+      <title>什么是浏览器的重绘与回流</title>
+      <link>https://alili.tech/archive/45db7962/</link>
+      <pubDate>Mon, 25 Apr 2016 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/45db7962/</guid>
+      <description>重绘与回流的定义  重绘：当前元素的样式(背景颜色、字体颜色等)发生改变的时候，我们只需要把改变的元素重新的渲染一下即可，重绘对浏览器的性能影响较小，所以 一般不考虑。 发生重绘的情形：改变容器的外观风格等，比如background：black等。改变外观，不改变布局，不影响其他的dom。
+ 回流：是指浏览器为了重新渲染部分或者全部的文档而重新计算文档中元素的位置和几何构造的过程。因为回流可能导致整个dom树的重新构造，所以是性能的一大杀手.一个元素的回流导致了其所有子元素以及DOM中紧随其后的祖先元素的随后的回流.   浏览器渲染过程　 渲染：就是把浏览器把HTML代码以css定义的规则显示在浏览器窗口的过程 浏览器解析HTML的基本过程：  用户输入网址，浏览器向服务器发出请求，服务器返回html文件
+ 浏览器载入html代码，发现标签内有一个标签引用外部css文件
+ 浏览器又发出css文件的请求，服务器返回这个css文件
+ 浏览器继续载入html中的部分的代码，并且css文件已经拿到手了，可以渲染页面
+ 浏览器在代码中发现一个标签引用关了一张图片，向服务器发出请求。此时浏览器不会等到图片下载完，而是继续渲染后面的代码
+ 服务器返回图片文件，由于图片占用了一定面积，影响了后面段落的排布，因此浏览器需要回过头来渲染这部分代码
+ 浏览器发现了一个包含一行javascript代码的script标签，赶快运行它
+ javascript脚本执行了这条语句，命令浏览器隐藏代码中某个,杯具了，突然就少了一个元素，浏览器不得不重新渲染这部分代码
+ 终于等到的到来，浏览器泪流满面  等等，还没完，用户点了一个界面中的“换肤”按钮，javascript让浏览器换了一个标签中的css的路径
+ 浏览器召集了在座的各位：&amp;rdquo;大伙需要收拾下行李，咱得重新来过&amp;rdquo;，浏览器向服务器请求了新的css文件，重新渲染页面当页面的布局发生变化时，浏览器会回过头来重新渲染，这就是页面变慢的原因。
+  触发回流的操作  调整窗口大小（Resizing the window）
+ 改变字体（Changing the font）
+ 增加或者移除样式表（Adding or removing a stylesheet）
+ 内容变化，比如用户在input框中输入文字（Content changes, such as a user typing text in an input box）
+ 激活 CSS 伪类，比如 :hover (IE 中为兄弟结点伪类的激活)（Activation of CSS pseudo classes such as :hover (in IE the activation of the pseudo class of a sibling)</description>
+    </item>
+    
+    <item>
+      <title>移动端网站点击出现闪动或灰色背景问题</title>
+      <link>https://alili.tech/archive/cfcdda3/</link>
+      <pubDate>Wed, 20 Apr 2016 19:33:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/cfcdda3/</guid>
+      <description>移动端网站点击出现闪动或灰色背景问题
+只需对绑定事件添加class样式 使其触发事件时背景为透明色
+.class{-webkit-tap-highlight-color:transparent;}  </description>
+    </item>
+    
+    <item>
+      <title>源码分析Angularjs中的Provider们的小小区别</title>
+      <link>https://alili.tech/archive/41effd04/</link>
+      <pubDate>Mon, 22 Feb 2016 16:14:25 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/41effd04/</guid>
+      <description>AngularJS的provider Angular中有以下创建供应商(provider)的方法: * provider() * service() * factory()
+Provider使用方式 angular.module(&amp;quot;app&amp;quot;, []) .provider(&amp;quot;HelloAngular&amp;quot;, function() { return { $get: function() { var name = &amp;quot;小明&amp;quot;; function getName() { return name; } return { getName: getName } } } }) .controller(&#39;MyCtrl&#39;, [&#39;$scope&#39;, &#39;HelloAngular&#39;, function($scope, helloAngular) { $scope.gameName = helloAngular.getName(); } ]);  Service使用方式 angular.module(&amp;quot;app&amp;quot;, []) .service(&amp;quot;HelloAngular&amp;quot;, function() { this.name = &amp;quot;小明&amp;quot;; this.getName=function(){ return this.name; } }) .controller(&#39;MyCtrl&#39;, [&#39;$scope&#39;, &#39;HelloAngular&#39;, function($scope, helloAngular) { $scope.</description>
+    </item>
+    
+    <item>
+      <title>Hexo的SEO优化(搜索引擎优化)</title>
+      <link>https://alili.tech/archive/4105a341/</link>
+      <pubDate>Tue, 19 Jan 2016 21:32:05 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/4105a341/</guid>
+      <description>今天给大家聊一聊hexo的seo也就是百度跟谷歌的一些搜索引擎优化.
+sitemap网站地图  安装site map网站地图插件
+npm install hexo-generator-sitemap --save npm install hexo-generator-baidu-sitemap --save  _config.yml中增加以下配置
+itemap: path: sitemap.xml baidusitemap: path: baidusitemap.xml  生成网站地图
+  hexo clean hexo g  百度主动推送  安装插件
+npm install hexo-baidu-url-submit --save  _config.yml插件配置
+  baidu_url_submit: count: 10 # 提交最新的链接数 host: alili.tech # 在百度站长平台中注册的域名,虽然官方推荐要带有 www, 但可以不带. token: your_token ## 请注意这是您的秘钥， 请不要发布在公众仓库里! path: baidu_urls.txt # 文本文档的地址,新链接会保存在此文本文档里   _config.yml发布配置 ``` deploy: type: git #部署类型 repository: xxxxx #部署的仓库 branch: master</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之Proxy</title>
+      <link>https://alili.tech/archive/46973069/</link>
+      <pubDate>Fri, 31 Jul 2015 21:17:51 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/46973069/</guid>
+      <description>Proxy ES6新增了Proxy,那Proxy是什么呢?
+Proxy,翻译是代理的意思.在ES6中,Proxy可以监听对象的修改.
+也就是说,外界对这个对象的访问与修改,都可以通过Proxy监听,并且可以做一些别的事情.
+举个例子:
+var obj={ a:1 } var proxyObj = new Proxy(obj,{ //proxyObj会继承obj set:function(){ alert(&amp;quot;我被修改了&amp;quot;) } }); //修改属性 proxyObj.a=2; //属性被修改后,之前设置的handler会被触发 console.log(obj.a) // 2  就这么简单
+下面是可以监听的操作 1. get(target, propKey, receiver) 拦截对象属性的读取，比如proxy.foo和proxy[&amp;lsquo;foo&amp;rsquo;]。
+2. set(target, propKey, value, receiver) 拦截对象属性的设置，比如proxy.foo = v或proxy[&amp;lsquo;foo&amp;rsquo;] = v，返回一个布尔值。
+3. has(target, propKey) 拦截propKey in proxy的操作，以及对象的hasOwnProperty方法，返回一个布尔值。
+4. deleteProperty(target, propKey) 拦截delete proxy[propKey]的操作，返回一个布尔值。
+5. ownKeys(target) 拦截Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)，返回一个数组。该方法返回对象所有自身的属性，而Object.keys()仅返回对象可遍历的属性。
+6. getOwnPropertyDescriptor(target, propKey) 拦截Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。
+7. defineProperty(target, propKey, propDesc) 拦截Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回一个布尔值。</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之Promise</title>
+      <link>https://alili.tech/archive/91140f15/</link>
+      <pubDate>Tue, 28 Jul 2015 23:13:56 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/91140f15/</guid>
+      <description>Promise Promise与上一章的Generator一样,也是异步编程的一种解决方案.
+在 jQuery,Angular都能找到相似的处理异步的方法.
+基本使用 //首先先实例化一个Promise var promise = new Promise(function(resolve, reject) { //Promise会有两个参数 resolve, reject,一个代表成功,一个代表失败 if (/* true or false */){ resolve(value); //成功,会执行promise.then的第一个回调 } else { reject(error); //失败,会执行promise.then的第二个回调 } }); promise.then(function(value){ //当上面函数运行resolve()的时候,会走这里 //并且可以接收到 Promise函数里resolve传入的参数 },function(error){ //当上面函数运行reject()的时候,会走这里 //并且可以接收到 Promise函数里reject传入的参数 }).catch(function(error){ //当then的两个回调函数都有报错的时候,如果加上了catch, //可以在这里接受到报错的对象, //且不会导致代码因为报错,停止执行 })  这就是一个完整的Promise的使用方法.是不是非常的简单?</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之Generator</title>
+      <link>https://alili.tech/archive/be827185/</link>
+      <pubDate>Sat, 25 Jul 2015 22:15:47 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/be827185/</guid>
+      <description>Generator的基本使用 Generator是ES6提供的一种异步解决方案.他能干什么呢?
+能具体解决我们什么样的问题呢?
+比如说,我想做一件事情,但是必须要求有两个ajax完成后才能做.
+比如:
+$http.get(&#39;请求1&#39;).success(function(){ $http.get(&#39;请求2&#39;).success(function(){ // do something ... }) })  这样做的话,就要一层一层的嵌套,当请求更多的时候,代码会写的非常的乱.
+现在我们有了Generator,我们该怎么做呢?
+function* getData(){ yield $http.get(&#39;请求1&#39;).success(function(){ // do something ... g.next(); }); yield $http.get(&#39;请求2&#39;).success(function(){ // do something ... g.next(); }); //最终要做的事情 } var g =getData(); g.next();  就这样,我们把必须要嵌套的异步操作,写成了&amp;rdquo;同步&amp;rdquo;.
+上面的函数,有三个关键的地方:
+1.function 后面多了一个 *
+2.函数里多了一个yield 关键字
+3.函数执行后,会有一个next方法;
+Generator的基本使用,就是在这三个关键的地方.
+关于Generator的运行过程是这样子的:
+1.在function后面加一个*,表示申明了一个Generator函数.
+2.当Generator函数运行后,会实例出一个Generator对象. 这个Generator对象下会有一个next方法.
+3.当我们运行next方法的时候,才能真正运行Generator函数里真正的内容.
+4.当执行Generator函数的时候,碰到了yield,函数会暂停一次.
+5.当下一次运行next方法的时候,Generator函数会从上一次暂停的地方继续执行.
+yield yield关键字与return很像,会返回相应的东西.
+他们的区别在于:
+yield是暂停函数的运行,必须要在Generator函数里使用.
+return是终止函数的运行,任何地方都能使用</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之箭头函数</title>
+      <link>https://alili.tech/archive/918f85ad/</link>
+      <pubDate>Sun, 19 Jul 2015 20:45:33 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/918f85ad/</guid>
+      <description>在es6中可以使用箭头函数（Arrow Functions）
+var foo = (a) =&amp;gt; a; foo(&amp;quot;hello word&amp;quot;); //hello word  等价于
+var foo = function(a){ return a } foo(&amp;quot;hello word&amp;quot;); //hello word  以上函数只有一个参数,还可以写成连括号都不需要:
+var foo = a =&amp;gt; a; foo(&amp;quot;hello word&amp;quot;); //hello word  如果函数没有参数,就必须要加上括号了:
+var foo = () =&amp;gt; { alert(&amp;quot;hello word&amp;quot;); };  作为事件句柄
+document.addEventListener(&#39;click&#39;, event =&amp;gt; { console.log(event) })  回调
+$(&amp;quot;button&amp;quot;).hover( ()=&amp;gt;{ //鼠标移入 console.log(&amp;quot;鼠标移入&amp;quot;); }, ()=&amp;gt;{ //鼠标移出 console.log(&amp;quot;鼠标移出&amp;quot;); })  使用箭头函数之后,this将会继承外围作用域的this,举个例子
+var oImage = new Image() var oImage2 = new Image() document.</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之解构赋值</title>
+      <link>https://alili.tech/archive/8d0689eb/</link>
+      <pubDate>Fri, 17 Jul 2015 23:32:16 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/8d0689eb/</guid>
+      <description>学习解构赋值的时候,我想到了以前的一道题: &amp;gt;a,b 两个变量，不用第三个变量来切换两个变量的值
+var a = 10, b = 20; a = { a: a, b: b }; b = a.a; a = a.b; console.log(a) //20 console.log(b) //10  var a = 10, b = 20; a = [a,b] b = a[0]; a = a[1]; console.log(a) //20 console.log(b) //10  也有奇淫技巧
+var a = 10, b = 20; a=[b,b=a][0]; console.log(a) //20 console.log(b) //10  今天学到了解构赋值,那方法就更简单清晰了
+var a=10; var b=20; [a,b]=[b,a]; console.</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之变量那些事</title>
+      <link>https://alili.tech/archive/573a0170/</link>
+      <pubDate>Wed, 15 Jul 2015 20:18:24 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/573a0170/</guid>
+      <description>ECMAScript 6 已经正式发布一个月了,接下来会分享一些学习笔记以及自己的理解.
+新增的关键字 let与const 一直以来,javascript 都是用var来申明变量
+function foo(){ var a = 1; console.log(a) } foo(); //1  现在我们多了两个新的小伙伴:let与const let命令 function foo(){ let a = 1; console.log(a) } foo(); //1  这样看起来,与var没有什么区别,我们看接下来的例子
+if(true){ var a =1; } console.log(a) // 1  if(true){ let a =1; } console.log(a) // Error: a is not defined  在 for函数里
+for (var i = 0; i &amp;lt; 10; i++) { } console.log(i) // 10  for (let i = 0; i &amp;lt; 10; i++) { } console.</description>
+    </item>
+    
+    <item>
+      <title>ECMAScript 6 之如何快速的做ES6练习</title>
+      <link>https://alili.tech/archive/8bb9cbf7/</link>
+      <pubDate>Wed, 15 Jul 2015 19:02:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/8bb9cbf7/</guid>
+      <description> babel这个词,可翻译成通天塔，变乱塔.
+《圣经·旧约·创世记》
+第11章宣称，当时人类联合起来兴建希望能通往天堂的高塔； 为了阻止人类的计划，上帝让人类说不同的语言， 使人类相互之间不能沟通，计划因此失败，人类自此各散东西。
+这应该就是为什么我们的babel.js叫babel的原因;
+如何运行es6 直接网上编译 Babel有一个REPL在线编译器，可以直接在线将ES6代码转为ES5代码。转换完成后,直接在网页里运行。
+引入browser.js browser.js是Babel提供的浏览器转换脚本,可以直接在浏览器中引入运行.
+ 注意:要在下面的script标签定义type为 &amp;ldquo;text/babel&amp;rdquo;
+ &amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html lang=&amp;quot;en&amp;quot;&amp;gt;&amp;lt;head&amp;gt; &amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;&amp;gt; &amp;lt;title&amp;gt;ECMAScript 6 练习&amp;lt;/title&amp;gt; &amp;lt;script src=&amp;quot;http://cdn.bootcss.com/babel-core/5.8.24/browser.js&amp;quot;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;script type=&amp;quot;text/babel&amp;quot;&amp;gt; //在这里,就可以运行你的es6代码了 &amp;lt;/script&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>自动化部署前端代码 - grunt-ftp-deploy的使用</title>
+      <link>https://alili.tech/archive/20901007/</link>
+      <pubDate>Sun, 14 Jun 2015 23:36:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/20901007/</guid>
+      <description>每一次修改完代码之后,要部署到远程的服务器,我的操作步骤是:
+修改代码 &amp;ndash;&amp;gt; grunt build &amp;ndash;&amp;gt; 打开FileZilla &amp;ndash;&amp;gt;登录ftp服务器 &amp;ndash;&amp;gt;找到本地文件夹 &amp;ndash;&amp;gt; 找到远程服务器目标文件夹 &amp;ndash;&amp;gt;全选本地文件 &amp;ndash;&amp;gt; 上传
+因为部署代码,在某个时候会特别频繁.每一次都要重复上面的八个操作.表示要做点什么,改变一下.
+今天我们的主角:grunt-ftp-deploy
+如果是sftp可以使用grunt-sftp-deploy
+安装:
+npm install grunt-ftp-deploy --save-dev or npm install grunt-sftp-deploy --save-dev  在与Gruntfile文件同一目录,我们新建一个&amp;rdquo;.ftppass&amp;rdquo;的文件, 里面是ftp的授权信息, 内容如下:
+{ &amp;quot;key1&amp;quot;: { &amp;quot;username&amp;quot;: &amp;quot;username&amp;quot;, &amp;quot;password&amp;quot;: &amp;quot;password&amp;quot; } }  Gruntfile配置代码:
+//ftp-deploy grunt.initConfig({ &#39;ftp-deploy&#39;: { build: { auth: { host: &#39;192.168.1.245&#39;, //ftp服务器的ip地址 port: 21,//服务器端口 authKey: &#39;key1&#39;//.ftppass文件里,key1的授权信息 }, src: &#39;path/to/source/folder&#39;,//本地文件夹 dest: &#39;/path/to/destination/folder&#39;,//服务器的目标文件夹 exclusions: [&#39;path/to/source/folder/**/.DS_Store&#39;]//不上传的文件 } } })  or
+//sftp-deploy grunt.</description>
+    </item>
+    
+    <item>
+      <title>烦人的Angularjs注解 - grunt-ng-annotate的使用</title>
+      <link>https://alili.tech/archive/c38cfa0d/</link>
+      <pubDate>Fri, 12 Jun 2015 23:15:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/c38cfa0d/</guid>
+      <description>angular加入了依赖注入
+编写代码的时候,大致的写法如下
+app.controller(&#39;tempController&#39;, function($scope, $http, $state, $timeout) { ... })  可是这样的代码,压缩后会造成一个问题. 函数的参数:$scope, $http, $state, $timeout会变成: a,b,c,d
+导致这个函数找不到需要注入的服务,因为每个参数的命名都是严格规定的.
+如下:
+app.controller(&#39;tempController&#39;, function(a,b,c,d) { ... })  为了解决这个问题,angular支持如下写法:
+app.controller(&#39;tempController&#39;, [&amp;quot;$scope&amp;quot;, &amp;quot;$http&amp;quot;, &amp;quot;$state&amp;quot;, &amp;quot;$timeout&amp;quot;, function($scope, $http, $state, $timeout) { }])  那么问题来了:
+每一次添加一个服务的时候,都需要写两遍. 每一次删除一个服务的时候,都需要删两遍.
+表示大大降低了变成的愉悦.
+那么我们怎么解决这个问题呢?
+今天的主角来了,那就是grunt-ng-annotate
+这是一个grunt的插件,当然在glup上也有.因为我的项目主要是用grunt写的. 那么这次主要讲grunt版本的ng-annotate.
+首先我们需要安装ng-annotate:
+npm install grunt-ng-annotate --save-dev  在你的Gruntfile里运行这个插件:
+grunt.loadNpmTasks(&#39;grunt-ng-annotate&#39;);  配置代码:
+grunt.initConfig({ ngAnnotate: { dist: { files: [{ expand: true, cwd: &#39;&amp;lt;%= yeoman.dist %&amp;gt;&#39;, //相对路径 src: &#39;**/*Controller.</description>
+    </item>
+    
+    <item>
+      <title>Angularjs 指令模版</title>
+      <link>https://alili.tech/archive/baa7d23b/</link>
+      <pubDate>Thu, 21 May 2015 22:17:36 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/baa7d23b/</guid>
+      <description>myModule.directive(&#39;namespaceDirectiveName&#39;, function factory(injectables) { var directiveDefinitionObject = { restrict: string,//指令的使用方式，包括标签，属性，类，注释 priority: number,//指令执行的优先级 template: string,//指令使用的模板，用HTML字符串的形式表示 templateUrl: string,//从指定的url地址加载模板 replace: bool,//是否用模板替换当前元素，若为false，则append在当前元素上 transclude: bool,//是否将当前元素的内容转移到模板中 scope: bool or object,//指定指令的作用域 controller: function controllerConstructor($scope, $element, $attrs, $transclude){...},//定义与其他指令进行交互的接口函数 require: string,//指定需要依赖的其他指令 link: function postLink(scope, iElement, iAttrs) {...},//以编程的方式操作DOM，包括添加监听器等 compile: function compile(tElement, tAttrs, transclude){ return: { pre: function preLink(scope, iElement, iAttrs, controller){...}, post: function postLink(scope, iElement, iAttrs, controller){...} } }//编程的方式修改DOM模板的副本，可以返回链接函数 }; return directiveDefinitionObject; });  </description>
+    </item>
+    
+    <item>
+      <title>新的开始,心路历程</title>
+      <link>https://alili.tech/archive/b585e161/</link>
+      <pubDate>Sun, 20 Jul 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://alili.tech/archive/b585e161/</guid>
+      <description>2014-07-20 毕业了, 学不会的,才叫学习!!!! :)
+2018-11-20 我们学习那么多的技术,只是为了让业务有更多的可能性,让自己的想象力有一块稳健的基石而不是胡思乱想.
+2018-12-16 原来自己一直学习的动力,全部都来自对未来的焦虑.
+2018-12-28 我的成长,看来是要跟时间赛跑了.
+2018-01-01 今年的目标确立了,一共两点. 一个是英语,一个是体重~
+2018-01-14 Bug 是团队很重要的一笔经验财富
+2018-01-25 最近学习的动力减少了,博客也有点懒得更新了. 主要是短期目标又实现了一个,焦虑减少了.这种感觉也挺好的.</description>
+    </item>
+    
+  </channel>
+</rss>
